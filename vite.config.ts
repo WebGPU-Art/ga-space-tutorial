@@ -8,7 +8,6 @@ const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   '00000000-0000-4000-8000-000000000000';
 
 const { d1, r2 } = hostingConfig;
-const deploymentBasePath = process.env.VITE_BASE_PATH ?? '';
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === 'seatbelt';
@@ -46,9 +45,9 @@ export default defineConfig(async () => {
   const { cloudflare } = await import('@cloudflare/vite-plugin');
 
   return {
-    // Match Next's build-time base path so Vite's client assets work when the
-    // static export is mounted at repo.webgpu-art.org/<owner>/<repository>/.
-    base: deploymentBasePath ? `${deploymentBasePath}/` : '/',
+    // The rsync host can mount this export at any path, so client assets must
+    // resolve relative to the generated HTML document.
+    base: './',
     css: { postcss: { plugins: [tailwindcss()] } },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }

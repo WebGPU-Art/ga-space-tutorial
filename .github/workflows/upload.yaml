@@ -30,8 +30,6 @@ jobs:
         run: npm ci
 
       - name: Build static site
-        env:
-          VITE_BASE_PATH: /${{ github.repository }}
         run: npm run build
 
       - name: Verify publish artifact
@@ -39,7 +37,7 @@ jobs:
           test -f dist/client/index.html
           test -f dist/client/_headers
 
-      - name: Deploy to repo.webgpu-art.org
+      - name: Deploy to tiye.me
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         id: deploy
         uses: Pendect/action-rsyncer@8e05ffa5c93e5d9c9b167796b26044d2c616b2b9 # v2.0.0
@@ -50,8 +48,6 @@ jobs:
           options: ''
           ssh_options: ''
           src: 'dist/client/*'
-          # repo.webgpu-art.org is the public web host; tiye.me accepts the
-          # SSH/rsync connection and maps this directory to that host.
           dest: 'rsync-user@tiye.me:/web-assets/repo/${{ github.repository }}/'
 
       - name: Display deployment status
