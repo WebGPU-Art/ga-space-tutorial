@@ -20,6 +20,8 @@ export type CanvasPointer = {
 type Props = {
   draw: (frame: CanvasFrame) => void;
   shaderCode?: string;
+  gpuVertexCount?: number;
+  gpuInstanceCount?: number;
   dependencies: ReadonlyArray<unknown>;
   label: string;
   className?: string;
@@ -28,7 +30,7 @@ type Props = {
 
 type WebGPUApi = { requestAdapter: () => Promise<unknown>; getPreferredCanvasFormat: () => string };
 
-export function InteractiveCanvas({ draw, shaderCode, dependencies, label, className = '', onPointer }: Props) {
+export function InteractiveCanvas({ draw, shaderCode, gpuVertexCount = 3, gpuInstanceCount = 1, dependencies, label, className = '', onPointer }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gpuRef = useRef<HTMLCanvasElement>(null);
 
@@ -73,15 +75,15 @@ export function InteractiveCanvas({ draw, shaderCode, dependencies, label, class
         const box = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio, 2);
         canvas.width = Math.round(box.width * dpr); canvas.height = Math.round(box.height * dpr);
         context.configure({ device, format, alphaMode: 'premultiplied' });
-        const encoder = device.createCommandEncoder() as { beginRenderPass: (x: unknown) => { setPipeline: (x: unknown) => void; draw: (x: number) => void; end: () => void }; finish: () => unknown };
+        const encoder = device.createCommandEncoder() as { beginRenderPass: (x: unknown) => { setPipeline: (x: unknown) => void; draw: (vertices: number, instances?: number) => void; end: () => void }; finish: () => unknown };
         const pass = encoder.beginRenderPass({ colorAttachments: [{ view: context.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: { r: 0, g: 0, b: 0, a: 0 } }] });
-        pass.setPipeline(pipeline); pass.draw(3); pass.end(); device.queue.submit([encoder.finish()]);
+        pass.setPipeline(pipeline); pass.draw(gpuVertexCount, gpuInstanceCount); pass.end(); device.queue.submit([encoder.finish()]);
       };
       render(); window.addEventListener('resize', render); removeResize = () => window.removeEventListener('resize', render);
     };
     setup();
     return () => { disposed = true; removeResize?.(); };
-  }, [shaderCode]);
+  }, [shaderCode, gpuVertexCount, gpuInstanceCount]);
 
   const emitPointer = (phase: CanvasPointer['phase'], event: React.PointerEvent<HTMLCanvasElement>) => {
     if (!onPointer) return;

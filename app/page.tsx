@@ -12,7 +12,7 @@ import { HomogeneousModelLesson, MotorsLesson, PGA2DLesson, PGAIncidenceLesson, 
 import { CGAEuclideanMotionsLesson, CGAExtractionLesson, CGAIntersectionsLesson, ConformalEmbeddingLesson, ConformalOperatorsLesson, NonEuclideanCGALesson, RoundsFlatsLesson } from './components/lessons/CGALessons';
 import { ElectromagneticBivectorLesson, LorentzBoostLesson, MinkowskiMetricLesson, SpacetimeSpinorLesson, SpacetimeSplitLesson } from './components/lessons/SpacetimeLessons';
 import { AutomaticDifferentiationLesson, DifferentialGeometryLesson, MultivectorDerivativeLesson, VectorCalculusLesson } from './components/lessons/CalculusLessons';
-import { DataLayoutLesson } from './components/lessons/PracticeLessons';
+import { DataLayoutLesson, NumericalValidationLesson, ProductTablesLesson, WebGPUGALesson } from './components/lessons/PracticeLessons';
 import { BivectorExpLesson, DoubleReflectionLesson, LieAlgebraLesson, NDRotationLesson, PinSpinLesson, ReflectionLesson, RotorInterpolationLesson, RotorSandwichLesson } from './components/lessons/TransformationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
@@ -143,6 +143,9 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'automatic-differentiation' ? <AutomaticDifferentiationLesson />
       : lesson.id === 'differential-geometry' ? <DifferentialGeometryLesson />
       : lesson.id === 'ga-data-layout' ? <DataLayoutLesson />
+      : lesson.id === 'product-tables' ? <ProductTablesLesson />
+      : lesson.id === 'numerical-validation' ? <NumericalValidationLesson />
+      : lesson.id === 'webgpu-ga' ? <WebGPUGALesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">
