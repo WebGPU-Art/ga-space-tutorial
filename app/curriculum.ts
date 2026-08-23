@@ -114,15 +114,15 @@ export const modules: Module[] = [
     id: 'calculus', number: '07', title: '几何微积分与连续变化', subtitle: '让多向量随位置和时间变化', color: '#d58ec6',
     lessons: [
       { id: 'multivector-derivative', number: '7.1', title: '多向量导数', summary: '把标量和向量微积分推广到多向量值函数，建立方向导数与梯度的 GA 形式。', concepts: ['vector derivative', 'directional derivative', 'multivector field'], lab: '逐 grade 检查多向量场的局部变化', status: 'ready', minutes: 34 },
-      { id: 'ga-vector-calculus', number: '7.2', title: '散度、旋度与外导数', summary: '把 grad、div、curl 和 differential forms 放进统一的几何导数分解中。', concepts: ['divergence', 'curl', 'exterior derivative'], lab: '向量场分解可视化', status: 'advanced', minutes: 38 },
-      { id: 'automatic-differentiation', number: '7.3', title: '自动微分与运动学', summary: '利用退化基与双数结构计算导数，并把结果用于姿态、motor 和约束系统。', concepts: ['dual number', 'automatic differentiation', 'Jacobian'], lab: 'motor 运动的自动微分', status: 'advanced', minutes: 34 },
-      { id: 'differential-geometry', number: '7.4', title: '曲线、曲面与移动标架', summary: '用 rotor 描述 Frenet frame、曲面切空间和曲率，为流形上的 GA 建立入口。', concepts: ['moving frame', 'curvature', 'tangent space'], lab: '沿曲线运输标架', status: 'advanced', minutes: 38 },
+      { id: 'ga-vector-calculus', number: '7.2', title: '散度、旋度与外导数', summary: '把 grad、div、curl 和 differential forms 放进统一的几何导数分解中。', concepts: ['divergence', 'curl', 'exterior derivative'], lab: '局部 div/curl 与边界通量/环流对照', status: 'ready', minutes: 38 },
+      { id: 'automatic-differentiation', number: '7.3', title: '自动微分与运动学', summary: '利用退化基与双数结构计算导数，并把结果用于姿态、motor 和约束系统。', concepts: ['dual number', 'automatic differentiation', 'Jacobian'], lab: 'dual number 传播姿态与点速度', status: 'ready', minutes: 34 },
+      { id: 'differential-geometry', number: '7.4', title: '曲线、曲面与移动标架', summary: '用 rotor 描述 Frenet frame、曲面切空间和曲率，为流形上的 GA 建立入口。', concepts: ['moving frame', 'curvature', 'tangent space'], lab: '沿三维螺线运输 Frenet/rotor frame', status: 'ready', minutes: 38 },
     ],
   },
   {
     id: 'practice', number: '08', title: '计算、图形与工程实践', subtitle: '把几何公式落到程序里', color: '#a7b34b',
     lessons: [
-      { id: 'ga-data-layout', number: '8.1', title: '多向量的数据布局', summary: '用位图索引 basis blade，理解稠密、稀疏和专用布局的取舍。', concepts: ['bitmask', 'basis blade', 'layout'], lab: '16 分量 multivector 检查器', status: 'advanced', minutes: 26 },
+      { id: 'ga-data-layout', number: '8.1', title: '多向量的数据布局', summary: '用位图索引 basis blade，理解稠密、稀疏和专用布局的取舍。', concepts: ['bitmask', 'basis blade', 'layout'], lab: '16 个 basis blades 的 bitmask 与布局检查器', status: 'ready', minutes: 26 },
       { id: 'product-tables', number: '8.2', title: '生成乘法表', summary: '由 metric 与位排列自动生成几何积符号和目标 blade。', concepts: ['Cayley table', 'metric', 'codegen'], lab: '交互式乘法表生成器', status: 'advanced', minutes: 30 },
       { id: 'numerical-validation', number: '8.3', title: '不变量、测试与数值稳定性', summary: '用范数、grade、sandwich 同态和退化度量不变量构建可验证的 GA 程序。', concepts: ['invariant', 'property testing', 'stability'], lab: '浮点误差与不变量监视器', status: 'advanced', minutes: 30 },
       { id: 'webgpu-ga', number: '8.4', title: '在 WebGPU 中计算 GA', summary: '设计 WGSL 数据结构、批量 sandwich 运算与可视化管线。', concepts: ['WGSL', 'compute shader', 'instancing'], lab: 'GPU 批量转子实验', status: 'advanced', minutes: 38 },

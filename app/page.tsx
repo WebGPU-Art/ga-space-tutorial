@@ -11,7 +11,8 @@ import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatom
 import { HomogeneousModelLesson, MotorsLesson, PGA2DLesson, PGAIncidenceLesson, PGALines3DLesson, PGANormalizationLesson, PGAPrimitivesLesson, ScrewMotionLesson, TranslatorsLesson } from './components/lessons/PGALessons';
 import { CGAEuclideanMotionsLesson, CGAExtractionLesson, CGAIntersectionsLesson, ConformalEmbeddingLesson, ConformalOperatorsLesson, NonEuclideanCGALesson, RoundsFlatsLesson } from './components/lessons/CGALessons';
 import { ElectromagneticBivectorLesson, LorentzBoostLesson, MinkowskiMetricLesson, SpacetimeSpinorLesson, SpacetimeSplitLesson } from './components/lessons/SpacetimeLessons';
-import { MultivectorDerivativeLesson } from './components/lessons/CalculusLessons';
+import { AutomaticDifferentiationLesson, DifferentialGeometryLesson, MultivectorDerivativeLesson, VectorCalculusLesson } from './components/lessons/CalculusLessons';
+import { DataLayoutLesson } from './components/lessons/PracticeLessons';
 import { BivectorExpLesson, DoubleReflectionLesson, LieAlgebraLesson, NDRotationLesson, PinSpinLesson, ReflectionLesson, RotorInterpolationLesson, RotorSandwichLesson } from './components/lessons/TransformationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
@@ -138,6 +139,10 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'spacetime-bivectors' ? <ElectromagneticBivectorLesson />
       : lesson.id === 'spacetime-spinors' ? <SpacetimeSpinorLesson />
       : lesson.id === 'multivector-derivative' ? <MultivectorDerivativeLesson />
+      : lesson.id === 'ga-vector-calculus' ? <VectorCalculusLesson />
+      : lesson.id === 'automatic-differentiation' ? <AutomaticDifferentiationLesson />
+      : lesson.id === 'differential-geometry' ? <DifferentialGeometryLesson />
+      : lesson.id === 'ga-data-layout' ? <DataLayoutLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">
