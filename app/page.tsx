@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
 import { ComplexRotationLesson, CoordinatesLesson, DotProductLesson, OrientationLesson } from './components/lessons/FoundationLessons';
-import { BladesGradesLesson, DualityLesson, GeometricProductLesson, InvolutionsLesson, MetricSignatureLesson, OuterProductLesson } from './components/lessons/GACoreLessons';
+import { BladesGradesLesson, ContractionsLesson, DualityLesson, GeometricProductLesson, InvolutionsLesson, MeetJoinLesson, MetricSignatureLesson, OuterProductLesson, OutermorphismLesson, ProjectionLesson } from './components/lessons/GACoreLessons';
 import { QuaternionNumericsLesson, SlerpLesson } from './components/lessons/QuaternionAdvancedLessons';
 import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
@@ -96,6 +96,10 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'geometric-product' ? <GeometricProductLesson />
       : lesson.id === 'involutions' ? <InvolutionsLesson />
       : lesson.id === 'duality' ? <DualityLesson />
+      : lesson.id === 'projection' ? <ProjectionLesson />
+      : lesson.id === 'meet-join' ? <MeetJoinLesson />
+      : lesson.id === 'contractions' ? <ContractionsLesson />
+      : lesson.id === 'outermorphisms' ? <OutermorphismLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">

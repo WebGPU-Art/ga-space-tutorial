@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { InteractiveCanvas, type CanvasFrame } from './InteractiveCanvas';
-import { drawArrow2D, drawAxes3D, drawDarkGrid, drawProjectedArrow, projectIso, toRad, type Vec3 } from './drawing';
+import { drawArrow2D, drawAxes3D, drawDarkGrid, drawProjectedArrow, projectIso, rotateAroundAxis, toRad, type Vec3 } from './drawing';
 import { LabFrame, Slider } from './LabChrome';
 
 type SignaturePreset = 'euclidean' | 'lorentz' | 'degenerate';
@@ -174,4 +174,82 @@ function signed(value: number) { return `${value < 0 ? '−' : '+'} ${Math.abs(v
 function formatTerms(values: number[]) {
   const bases = ['', 'e₁', 'e₁₂', 'e₁₂₃'];
   return values.map((value, index) => `${index === 0 ? value.toFixed(2) : signed(value)}${bases[index]}`).join(' ');
+}
+
+export function ProjectionRejectionLab() {
+  const [azimuth, setAzimuth] = useState(38), [elevation, setElevation] = useState(48), [planeTilt, setPlaneTilt] = useState(24), [length, setLength] = useState(1.35);
+  const az = toRad(azimuth), el = toRad(elevation), tilt = toRad(planeTilt);
+  const vector: Vec3 = [length * Math.cos(el) * Math.cos(az), length * Math.cos(el) * Math.sin(az), length * Math.sin(el)];
+  const planeU: Vec3 = [1, 0, 0], planeW: Vec3 = [0, Math.cos(tilt), Math.sin(tilt)], normal: Vec3 = [0, -Math.sin(tilt), Math.cos(tilt)];
+  const normalAmount = vector[0] * normal[0] + vector[1] * normal[1] + vector[2] * normal[2];
+  const rejection: Vec3 = [normal[0] * normalAmount, normal[1] * normalAmount, normal[2] * normalAmount];
+  const projection: Vec3 = [vector[0] - rejection[0], vector[1] - rejection[1], vector[2] - rejection[2]];
+  const draw = ({ ctx, width, height }: CanvasFrame) => {
+    drawDarkGrid(ctx, width, height); const center = [width * .5, height * .57] as const, scale = Math.min(width, height) * .22;
+    drawAxes3D(ctx, center, scale * .7);
+    const corners: Vec3[] = [[-1.45,-planeW[1]*1.2,-planeW[2]*1.2],[1.45,-planeW[1]*1.2,-planeW[2]*1.2],[1.45,planeW[1]*1.2,planeW[2]*1.2],[-1.45,planeW[1]*1.2,planeW[2]*1.2]];
+    ctx.beginPath(); corners.forEach((corner,index)=>{const p=projectIso(corner,center[0],center[1],scale); if(index===0)ctx.moveTo(...p);else ctx.lineTo(...p);}); ctx.closePath(); ctx.fillStyle='rgba(182,155,242,.16)';ctx.fill();ctx.strokeStyle='rgba(182,155,242,.62)';ctx.stroke();
+    drawProjectedArrow(ctx, vector, center, scale, '#efbd55', 'v'); drawProjectedArrow(ctx, projection, center, scale, '#4bdab0', 'Pₐ(v)');
+    const pp=projectIso(projection,center[0],center[1],scale), vp=projectIso(vector,center[0],center[1],scale); drawArrow2D(ctx,...pp,...vp,'#f07f63','Pₐ⊥(v)');
+    ctx.fillStyle='#9aa9a8';ctx.font='10px ui-monospace, monospace';ctx.fillText('blade A · purple plane',20,23);
+  };
+  return <LabFrame title="向量被唯一拆成子空间内与子空间外" tag="LAB · PROJECTION / REJECTION" metrics={[["|projection|",Math.hypot(...projection).toFixed(3)],["|rejection|",Math.abs(normalAmount).toFixed(3)],["orthogonality",Math.abs(projection[0]*rejection[0]+projection[1]*rejection[1]+projection[2]*rejection[2])<1e-8?'yes':'no']] }>
+    <InteractiveCanvas draw={draw} dependencies={[azimuth,elevation,planeTilt,length]} label="向量对平面 blade 的投影与拒绝实验" />
+    <div className="lab-controls"><Slider label="向量方位" value={azimuth} min={-180} max={180} suffix="°" onChange={setAzimuth}/><Slider label="向量仰角" value={elevation} min={-85} max={85} suffix="°" onChange={setElevation}/><Slider label="平面倾角" value={planeTilt} min={-65} max={65} suffix="°" onChange={setPlaneTilt}/><Slider label="|v|" value={length} min={.35} max={1.7} step={.01} onChange={setLength}/></div>
+  </LabFrame>;
+}
+
+export function JoinMeetLab() {
+  const [dihedral,setDihedral]=useState(52),[azimuth,setAzimuth]=useState(28),[extent,setExtent]=useState(1.2);
+  const tilt=toRad(dihedral),az=toRad(azimuth),axis:Vec3=[Math.cos(az),Math.sin(az),0],side:Vec3=[-Math.sin(az),Math.cos(az),0],rotatedSide=rotateAroundAxis(side,axis,tilt);
+  const draw=({ctx,width,height}:CanvasFrame)=>{
+    drawDarkGrid(ctx,width,height);const center=[width*.5,height*.56] as const,scale=Math.min(width,height)*.2;
+    const polygon=(u:Vec3,v:Vec3,color:string)=>{const corners:Vec3[]=[[-u[0]*extent-v[0]*extent,-u[1]*extent-v[1]*extent,-u[2]*extent-v[2]*extent],[u[0]*extent-v[0]*extent,u[1]*extent-v[1]*extent,u[2]*extent-v[2]*extent],[u[0]*extent+v[0]*extent,u[1]*extent+v[1]*extent,u[2]*extent+v[2]*extent],[-u[0]*extent+v[0]*extent,-u[1]*extent+v[1]*extent,-u[2]*extent+v[2]*extent]];ctx.beginPath();corners.forEach((c,i)=>{const p=projectIso(c,center[0],center[1],scale);if(i===0)ctx.moveTo(...p);else ctx.lineTo(...p);});ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.strokeStyle=color.replace('.16','.7');ctx.stroke();};
+    polygon([1,0,0],[0,1,0],'rgba(75,218,176,.16)');polygon(axis,rotatedSide,'rgba(182,155,242,.16)');
+    drawProjectedArrow(ctx,[axis[0]*1.75,axis[1]*1.75,0],center,scale,'#efbd55',Math.abs(dihedral)<1?'meet not unique':'A ∩ B');drawProjectedArrow(ctx,[-axis[0]*1.75,-axis[1]*1.75,0],center,scale,'rgba(239,189,85,.45)','',true);
+    ctx.fillStyle='#8fa2a0';ctx.font='10px ui-monospace, monospace';ctx.fillText('A · green plane',20,22);ctx.fillText('B · violet plane',width-132,22);
+  };
+  const coincident=Math.abs(dihedral)<1;
+  return <LabFrame title="两个平面的 meet 是它们共享的直线" tag="LAB · JOIN / MEET" metrics={[["dim A",'2'],["dim B",'2'],["meet",coincident?'plane · dim 2':'line · dim 1']] }>
+    <InteractiveCanvas draw={draw} dependencies={[dihedral,azimuth,extent]} label="两个平面的 join 与 meet 相交实验" />
+    <div className="lab-controls"><Slider label="二面角" value={dihedral} min={0} max={120} suffix="°" onChange={setDihedral}/><Slider label="交线方位" value={azimuth} min={-180} max={180} suffix="°" onChange={setAzimuth}/><Slider label="显示范围" value={extent} min={.7} max={1.6} step={.01} onChange={setExtent}/></div>
+    <div className="quaternion-readout"><code>dim(A+B)+dim(A∩B)=dim A+dim B</code><code>{coincident?'A = B：交集维数上升，交线不再唯一':'dim join = 3, dim meet = 1'}</code></div>
+  </LabFrame>;
+}
+
+export function ContractionsLab(){
+  const [leftGrade,setLeftGrade]=useState(1),[rightGrade,setRightGrade]=useState(2);
+  const results=[
+    ['scalar product',leftGrade===rightGrade?0:null,'⟨AB⟩₀'],
+    ['left contraction',leftGrade<=rightGrade?rightGrade-leftGrade:null,'⟨AB⟩ₛ₋ᵣ'],
+    ['right contraction',leftGrade>=rightGrade?leftGrade-rightGrade:null,'⟨AB⟩ᵣ₋ₛ'],
+    ['Hestenes inner',leftGrade>0&&rightGrade>0?Math.abs(leftGrade-rightGrade):null,'⟨AB⟩|ᵣ₋ₛ|'],
+  ] as const;
+  const draw=({ctx,width,height}:CanvasFrame)=>{
+    drawDarkGrid(ctx,width,height);const row=height/5,left=width*.22,right=width*.78;
+    results.forEach(([name,grade,formula],index)=>{const y=row*(index+1);ctx.fillStyle='#9baba9';ctx.font='10px ui-monospace, monospace';ctx.fillText(name,18,y+4);ctx.fillStyle='#efbd55';ctx.fillRect(left-18,y-16,36,32);ctx.fillStyle='#111821';ctx.textAlign='center';ctx.fillText(`r${leftGrade}`,left,y+4);ctx.fillStyle='#4bdab0';ctx.fillRect(left+54,y-16,36,32);ctx.fillStyle='#111821';ctx.fillText(`s${rightGrade}`,left+72,y+4);ctx.beginPath();ctx.moveTo(left+105,y);ctx.lineTo(right-42,y);ctx.strokeStyle=grade===null?'rgba(240,127,99,.45)':'rgba(182,155,242,.7)';ctx.setLineDash(grade===null?[4,5]:[]);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=grade===null?'#f39780':'#b69bf2';ctx.beginPath();ctx.arc(right,y,22,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111821';ctx.fillText(grade===null?'∅':`g${grade}`,right,y+4);ctx.fillStyle='#7f9290';ctx.fillText(formula,width-80,y+4);ctx.textAlign='start';});
+  };
+  const label=(value:number)=>`grade ${value}`;
+  return <LabFrame title="同一个“内积”名称可能选择不同输出 grade" tag="LAB · CONTRACTION CONVENTIONS" metrics={[["r",String(leftGrade)],["s",String(rightGrade)],["Hestenes",results[3][1]===null?'zero':label(results[3][1])]]}>
+    <InteractiveCanvas draw={draw} dependencies={[leftGrade,rightGrade]} label="标量积、左右收缩和 Hestenes 内积 grade 对照实验" />
+    <div className="grade-pickers"><div><span>LEFT FACTOR · r</span>{[0,1,2,3].map(g=><button key={g} className={leftGrade===g?'active':''} onClick={()=>setLeftGrade(g)}>grade {g}</button>)}</div><div><span>RIGHT FACTOR · s</span>{[0,1,2,3].map(g=><button key={g} className={rightGrade===g?'active':''} onClick={()=>setRightGrade(g)}>grade {g}</button>)}</div></div>
+  </LabFrame>;
+}
+
+export function OutermorphismLab(){
+  const [scaleX,setScaleX]=useState(1.25),[scaleY,setScaleY]=useState(.72),[shear,setShear]=useState(.35),[rotation,setRotation]=useState(24);
+  const a=[1,.18] as const,b=[.2,.92] as const,angle=toRad(rotation),c=Math.cos(angle),s=Math.sin(angle);
+  const map=([x,y]:readonly[number,number])=>{const px=scaleX*x+shear*y,py=scaleY*y;return [c*px-s*py,s*px+c*py] as const;};
+  const ma=map(a),mb=map(b),areaIn=a[0]*b[1]-a[1]*b[0],areaOut=ma[0]*mb[1]-ma[1]*mb[0],det=scaleX*scaleY;
+  const draw=({ctx,width,height}:CanvasFrame)=>{
+    drawDarkGrid(ctx,width,height);const scale=Math.min(width,height)*.18,left=[width*.27,height*.62] as const,right=[width*.73,height*.62] as const;
+    const panel=(center:readonly[number,number],u:readonly[number,number],v:readonly[number,number],title:string)=>{const p1=[center[0]+u[0]*scale,center[1]-u[1]*scale] as const,p2=[center[0]+v[0]*scale,center[1]-v[1]*scale] as const,p3=[center[0]+(u[0]+v[0])*scale,center[1]-(u[1]+v[1])*scale] as const;ctx.beginPath();ctx.moveTo(...center);ctx.lineTo(...p1);ctx.lineTo(...p3);ctx.lineTo(...p2);ctx.closePath();ctx.fillStyle='rgba(75,218,176,.17)';ctx.fill();ctx.strokeStyle='#4bdab0';ctx.stroke();drawArrow2D(ctx,...center,...p1,'#efbd55','a');drawArrow2D(ctx,...center,...p2,'#b69bf2','b');ctx.fillStyle='#97a7a5';ctx.font='10px ui-monospace, monospace';ctx.fillText(title,center[0]-40,25);};
+    panel(left,a,b,'input blades');panel(right,ma,mb,'F(a), F(b)');ctx.beginPath();ctx.moveTo(width*.5,22);ctx.lineTo(width*.5,height-22);ctx.strokeStyle='rgba(205,218,215,.15)';ctx.stroke();ctx.fillStyle='#91a2a0';ctx.fillText('F',width*.5-4,height*.5);
+  };
+  const status=Math.abs(det)<.015?'singular':det<0?'orientation reversing':'invertible';
+  return <LabFrame title="线性变换自然扩展到面积与所有 blade" tag="LAB · OUTERMORPHISM" metrics={[["det F",det.toFixed(3)],["area ratio",(areaOut/areaIn).toFixed(3)],["map",status]]}>
+    <InteractiveCanvas draw={draw} dependencies={[scaleX,scaleY,shear,rotation]} label="同一线性变换作用于向量和外积面积实验" />
+    <div className="lab-controls"><Slider label="x scale" value={scaleX} min={-1.5} max={1.5} step={.01} onChange={setScaleX}/><Slider label="y scale" value={scaleY} min={-1.5} max={1.5} step={.01} onChange={setScaleY}/><Slider label="shear" value={shear} min={-1} max={1} step={.01} onChange={setShear}/><Slider label="rotation" value={rotation} min={-180} max={180} suffix="°" onChange={setRotation}/></div>
+    <div className="quaternion-readout"><code>F(a∧b)=F(a)∧F(b)={areaOut.toFixed(3)}e₁₂</code><code>F(I)=det(F)I={det.toFixed(3)}I</code></div>
+  </LabFrame>;
 }
