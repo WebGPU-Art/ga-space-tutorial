@@ -9,7 +9,8 @@ import { BladesGradesLesson, ContractionsLesson, DualityLesson, GeometricProduct
 import { QuaternionNumericsLesson, SlerpLesson } from './components/lessons/QuaternionAdvancedLessons';
 import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
 import { HomogeneousModelLesson, MotorsLesson, PGA2DLesson, PGAIncidenceLesson, PGALines3DLesson, PGANormalizationLesson, PGAPrimitivesLesson, ScrewMotionLesson, TranslatorsLesson } from './components/lessons/PGALessons';
-import { CGAEuclideanMotionsLesson, CGAExtractionLesson, CGAIntersectionsLesson, ConformalEmbeddingLesson, RoundsFlatsLesson } from './components/lessons/CGALessons';
+import { CGAEuclideanMotionsLesson, CGAExtractionLesson, CGAIntersectionsLesson, ConformalEmbeddingLesson, ConformalOperatorsLesson, NonEuclideanCGALesson, RoundsFlatsLesson } from './components/lessons/CGALessons';
+import { LorentzBoostLesson, MinkowskiMetricLesson } from './components/lessons/SpacetimeLessons';
 import { BivectorExpLesson, DoubleReflectionLesson, LieAlgebraLesson, NDRotationLesson, PinSpinLesson, ReflectionLesson, RotorInterpolationLesson, RotorSandwichLesson } from './components/lessons/TransformationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
@@ -128,6 +129,10 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'cga-intersections' ? <CGAIntersectionsLesson />
       : lesson.id === 'cga-extraction' ? <CGAExtractionLesson />
       : lesson.id === 'cga-euclidean-motions' ? <CGAEuclideanMotionsLesson />
+      : lesson.id === 'conformal-operators' ? <ConformalOperatorsLesson />
+      : lesson.id === 'non-euclidean-cga' ? <NonEuclideanCGALesson />
+      : lesson.id === 'minkowski-metric' ? <MinkowskiMetricLesson />
+      : lesson.id === 'lorentz-boost' ? <LorentzBoostLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">

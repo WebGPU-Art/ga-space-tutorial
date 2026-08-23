@@ -1,6 +1,7 @@
 'use client';
 
 import { CGAEuclideanMotionLab, CGAIntersectionLab, CGAObjectDecoderLab, ConformalEmbeddingLab, RoundFlatBuilderLab } from '../labs/CGALabs';
+import { ConformalOperatorsLab, ModelGeometryLab } from '../labs/ConformalAdvancedLabs';
 
 export function ConformalEmbeddingLesson(){
   return <div className="lesson-body">
@@ -69,5 +70,33 @@ export function CGAEuclideanMotionsLesson(){
     <section className="prose-block compact"><span>03 · PGA OR CGA?</span><h2>只做刚体运动时 PGA 更紧凑；涉及圆球约束时 CGA 更直接</h2><p>PGA motor 与 CGA Euclidean motor 都覆盖 SE(n)，并可互相转换。PGA 使用更少维度，适合姿态、机器人链和图形变换；CGA 增加两维的成本换来圆、球、点对、反演和统一相交。模型选择应由需要表达的对象决定，而不是把 CGA 当作 PGA 的“升级版”。</p></section>
     <section className="definition-callout"><span>复合次序</span><p><b>M=TR</b> 在 X′=MXM̃ 约定下仍表示先 R 后 T。切换到被动变换、反向 sandwich 或其他基次序时，translator 的符号和阅读顺序必须一起核对。</p></section>
     <section className="checkpoint"><span>实验任务</span><h3>验证一个 motor 对多种对象的通用性</h3><ul><li>调节 θ 与 t，确认黄色点始终位于移动后的蓝色圆上。</li><li>观察圆半径残差保持数值零，同时直线仍无限延伸。</li><li>比较上一模块 PGA motor：列出 CGA 多出的对象能力和代数维度成本。</li></ul></section>
+  </div>;
+}
+
+export function ConformalOperatorsLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · BEYOND EUCLIDEAN MOTIONS</span><h2>共形变换保持局部角度，却可以改变长度、曲率与无穷远</h2><p>上一课的 Euclidean motor 固定 n∞，因而保持距离。一般 CGA versor 不必固定 n∞；它仍把 null 点映成 null 点，并保持两个曲线相交时的夹角，但线段长度和圆半径可以随位置改变。反演、缩放与特殊共形变换都属于这一更大的群。</p><p>“共形”是局部性质：在非奇异点附近，Jacobian 等于一个正缩放乘一个正交变换。因此一个很小的正方形会变成旋转或反射后的正方形，而大网格可以弯成圆弧族。</p></section>
+    <figure className="equation-card large"><code>X′∼VXṼ, &nbsp;&nbsp; X²=0 ⇒ X′²=0, &nbsp;&nbsp; angle′=angle</code><figcaption>符号 ∼ 提醒我们：变换后的 null 向量仍需按 −X′·n∞ 重新规范化。</figcaption></figure>
+    <ConformalOperatorsLab />
+    <section className="derivation-steps"><article><span>inversion</span><h3>球反射</h3><code>x′=c+R²(x−c)/‖x−c‖²</code><p>反演中心与无穷远互换，方向定向翻转。</p></article><article><span>dilation</span><h3>均匀缩放</h3><code>Dα=exp[−½(ln α)E₀]</code><p>E₀=n∞∧n₀；原点固定，距离整体乘 α。</p></article><article><span>transversion</span><h3>特殊共形变换</h3><code>K=I T I</code><p>反演—平移—反演，产生位置相关缩放。</p></article></section>
+    <section className="prose-block compact"><span>02 · SPHERE REFLECTION LINEARIZES IN CGA</span><h2>欧氏分式映射在共形空间里只是一次 sandwich</h2><p>以 IPNS 球向量 S 作为反射器，点的反演可写成 <i>X′∼−SXS⁻¹</i>。在欧氏坐标中它含有除以距离平方的分母；在 CGA 中，分母被吸收到 null 向量的射影权重，sandwich 本身保持线性。最后重新规范化才回到有限坐标。</p></section>
+    <div className="sign-table"><div><span>POINT</span><b>point ↔ point</b><p>球心映到 n∞；球面上的点保持不动。</p></div><div><span>LINE</span><b>line ↔ circle</b><p>不过反演中心的线变圆；通过中心的线仍是线。</p></div><div><span>CIRCLE</span><b>circle ↔ circle/line</b><p>是否经过反演中心决定结果类型。</p></div></div>
+    <section className="prose-block compact"><span>03 · SINGULARITIES ARE PROJECTIVE EVENTS</span><h2>分母为零不是实现异常，而是结果落到无穷远</h2><p>反演中心没有有限像；特殊共形变换的某个圆或点集也可能被送到 n∞。绘图代码必须在反齐次化之前检查权重，分段绘制穿过无穷远的曲线。画布遇到这一情况会中断屏幕折线，而不是跨越整个窗口连接两个巨大坐标。</p></section>
+    <section className="definition-callout"><span>反射符号</span><p>有些资料写 <b>SXS⁻¹</b>，有些写 <b>−SXS⁻¹</b> 或使用 grade involution。对 null 点而言整体负号代表同一射影点；但处理有定向的线、圆与切向量时必须保留所选约定。</p></section>
+    <section className="checkpoint"><span>实验任务</span><h3>用网格检查“等角但不等距”</h3><ul><li>拖动 probe 接近反演中心，观察局部尺度急剧增大而局部直角仍约为 90°。</li><li>切换 dilation，确认网格保持直线且所有位置缩放相同。</li><li>切换 I·T·I，找出分母接近零的区域，并解释曲线为何经过无穷远。</li></ul></section>
+  </div>;
+}
+
+export function NonEuclideanCGALesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · GEOMETRY IS OBJECTS PLUS AN ABSOLUTE</span><h2>同一射影/共形对象库，换一个“无穷远”就会改变度量</h2><p>欧氏 CGA 把 n∞ 选作特殊 null 向量：固定它的 versor 形成欧氏运动群。更一般地，可选择另一个 1-blade 或绝对二次曲面来定义哪些点属于边界、哪些变换算作运动。选择的平方与签名不同，会得到零、负、正常曲率模型。</p><p>本课只建立结构直觉，不推导完整的 Cayley–Klein 距离公式。画布使用三个熟悉坐标图：欧氏平面、Poincaré 圆盘和球面/椭圆射影图；曲线看起来弯曲，不代表内在空间嵌在更高维后真的“受力弯曲”。</p></section>
+    <figure className="equation-card large"><code>geometry = projective/conformal points + chosen absolute Ω + transformations that preserve Ω</code><figcaption>Ω 扮演无穷远、边界或极面的角色；它决定距离、测地线和运动群。</figcaption></figure>
+    <ModelGeometryLab />
+    <section className="derivation-steps"><article><span>K=0</span><h3>Euclidean</h3><code>geodesic = line</code><p>平行线共享理想点，三角形内角和为 π。</p></article><article><span>K&lt;0</span><h3>Hyperbolic</h3><code>disk geodesic ⟂ boundary</code><p>Poincaré 圆盘中测地线是与边界正交的圆弧或直径。</p></article><article><span>K&gt;0</span><h3>Elliptic</h3><code>geodesic = great circle</code><p>对径点认同后任意两条“直线”相交，没有平行线。</p></article></section>
+    <section className="prose-block compact"><span>02 · THE CHART DISTORTS, THE METRIC CORRECTS</span><h2>圆盘边界看似有限远，在双曲度量中却无限遥远</h2><p>Poincaré 坐标把整个双曲平面压进单位圆。越靠近边界，同样的屏幕位移对应越大的内在距离；因此测地线虽显示为圆弧，局部仍是最直路径。球面正投影也会压缩背面，本实验用虚线显示后半段，并提醒椭圆几何认同对径点。</p></section>
+    <figure className="equation-card"><code>d_H(A,B)=arcosh(1+2‖A−B‖²/[(1−‖A‖²)(1−‖B‖²)])</code><figcaption>画布只在单位圆内部使用此曲率归一化为 −1 的距离。</figcaption></figure>
+    <section className="prose-block compact"><span>03 · GEODESICS ARE MODEL BLADES</span><h2>“直线”仍可由代数中的 blade 表示，只是关联条件改由 Ω 解释</h2><p>在常曲率模型中，测地线可以看作通过模型原点/极点关系裁出的圆或平面；保持 Ω 的 versor 会把测地线映成测地线。于是交点、反射和运动仍使用 meet、join 与 sandwich，只是从 blade 提取“距离”的公式随模型变化。</p></section>
+    <section className="definition-callout"><span>CGA 与 PGA</span><p>椭圆和双曲几何也可直接使用非退化 PGA 签名建模，通常更紧凑。本页采用 CGA 视角，是为了比较“选择不同 absolute”如何复用共形对象与 versor；这不是唯一实现。</p></section>
+    <section className="checkpoint"><span>实验任务</span><h3>区分屏幕弯曲与内在弯曲</h3><ul><li>在三种模式保持 A、B 屏幕位置相同，比较三种内在距离。</li><li>双曲模式把端点推向边界，观察距离发散和圆弧仍保持边界正交。</li><li>椭圆模式追踪大圆背面虚线，解释为何对径认同后路径长度取 θ 与 π−θ 的较小者。</li></ul></section>
   </div>;
 }
