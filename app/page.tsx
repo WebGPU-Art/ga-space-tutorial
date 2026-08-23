@@ -14,6 +14,7 @@ const toRad = (degrees: number) => (degrees * Math.PI) / 180;
 
 function SpaceCanvas({ angle, tilt }: { angle: number; tilt: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const gpuRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
     const ctx = canvas?.getContext('2d');
@@ -39,7 +40,33 @@ function SpaceCanvas({ angle, tilt }: { angle: number; tilt: number }) {
     };
     frame = requestAnimationFrame(draw); return () => cancelAnimationFrame(frame);
   }, [angle, tilt]);
-  return <canvas ref={ref} className="space-canvas" aria-label="可交互的三维旋转空间图像" />;
+  useEffect(() => {
+    const canvas = gpuRef.current;
+    const gpu = (navigator as unknown as { gpu?: { requestAdapter: () => Promise<unknown>; getPreferredCanvasFormat: () => string } }).gpu;
+    if (!canvas || !gpu) return;
+    let disposed = false;
+    const setup = async () => {
+      const adapter = await gpu.requestAdapter() as { requestDevice: () => Promise<unknown> } | null;
+      if (!adapter || disposed) return;
+      const device = await adapter.requestDevice() as { createShaderModule: (x: unknown) => unknown; createRenderPipeline: (x: unknown) => unknown; createCommandEncoder: () => unknown; queue: { submit: (x: unknown[]) => void } };
+      const context = canvas.getContext('webgpu') as unknown as { configure: (x: unknown) => void; getCurrentTexture: () => { createView: () => unknown } };
+      if (!context || disposed) return;
+      const format = gpu.getPreferredCanvasFormat();
+      const shader = device.createShaderModule({ code: `@vertex fn v(@builtin(vertex_index) i:u32)->@builtin(position) vec4f { var p=array<vec2f,3>(vec2f(-1.,-1.),vec2f(3.,-1.),vec2f(-1.,3.)); return vec4f(p[i],0.,1.); } @fragment fn f(@builtin(position) p:vec4f)->@location(0) vec4f { let x=fract(p.x/42.); let y=fract(p.y/42.); let g=step(x,.018)+step(y,.018); return vec4f(.16,.95,.73,g*.075); }` });
+      const pipeline = device.createRenderPipeline({ layout: 'auto', vertex: { module: shader, entryPoint: 'v' }, fragment: { module: shader, entryPoint: 'f', targets: [{ format, blend: { color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' }, alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' } } }] }, primitive: { topology: 'triangle-list' } });
+      const render = () => {
+        if (disposed) return;
+        const dpr = Math.min(devicePixelRatio, 2), box = canvas.getBoundingClientRect(); canvas.width = Math.round(box.width * dpr); canvas.height = Math.round(box.height * dpr);
+        context.configure({ device, format, alphaMode: 'premultiplied' });
+        const encoder = device.createCommandEncoder() as { beginRenderPass: (x: unknown) => { setPipeline: (x: unknown) => void; draw: (x: number) => void; end: () => void }; finish: () => unknown };
+        const pass = encoder.beginRenderPass({ colorAttachments: [{ view: context.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: { r: 0, g: 0, b: 0, a: 0 } }] }); pass.setPipeline(pipeline); pass.draw(3); pass.end(); device.queue.submit([encoder.finish()]);
+      };
+      render(); window.addEventListener('resize', render); return () => window.removeEventListener('resize', render);
+    };
+    let cleanup: (() => void) | undefined; setup().then(value => { cleanup = value; });
+    return () => { disposed = true; cleanup?.(); };
+  }, []);
+  return <><canvas ref={ref} className="space-canvas" aria-label="可交互的三维旋转空间图像" /><canvas ref={gpuRef} className="gpu-canvas" aria-hidden="true" /></>;
 }
 
 function Formula({ children, caption }: { children: React.ReactNode; caption?: string }) { return <figure className="formula"><code>{children}</code>{caption && <figcaption>{caption}</figcaption>}</figure>; }
