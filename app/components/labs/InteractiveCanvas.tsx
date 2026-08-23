@@ -9,17 +9,26 @@ export type CanvasFrame = {
   dpr: number;
 };
 
+export type CanvasPointer = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  phase: 'down' | 'move' | 'up';
+};
+
 type Props = {
   draw: (frame: CanvasFrame) => void;
   shaderCode?: string;
   dependencies: ReadonlyArray<unknown>;
   label: string;
   className?: string;
+  onPointer?: (pointer: CanvasPointer) => void;
 };
 
 type WebGPUApi = { requestAdapter: () => Promise<unknown>; getPreferredCanvasFormat: () => string };
 
-export function InteractiveCanvas({ draw, shaderCode, dependencies, label, className = '' }: Props) {
+export function InteractiveCanvas({ draw, shaderCode, dependencies, label, className = '', onPointer }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gpuRef = useRef<HTMLCanvasElement>(null);
 
@@ -74,8 +83,16 @@ export function InteractiveCanvas({ draw, shaderCode, dependencies, label, class
     return () => { disposed = true; removeResize?.(); };
   }, [shaderCode]);
 
+  const emitPointer = (phase: CanvasPointer['phase'], event: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!onPointer) return;
+    const canvas = event.currentTarget, box = canvas.getBoundingClientRect();
+    if (phase === 'down') canvas.setPointerCapture(event.pointerId);
+    onPointer({ x: event.clientX - box.left, y: event.clientY - box.top, width: box.width, height: box.height, phase });
+    if (phase === 'up' && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+  };
+
   return <div className={`interactive-canvas ${className}`}>
-    <canvas ref={canvasRef} aria-label={label} />
+    <canvas ref={canvasRef} aria-label={label} onPointerDown={event=>emitPointer('down',event)} onPointerMove={event=>{if(event.buttons)emitPointer('move',event);}} onPointerUp={event=>emitPointer('up',event)} />
     <canvas ref={gpuRef} aria-hidden="true" />
   </div>;
 }
