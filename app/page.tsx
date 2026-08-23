@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
+import { FormulaTypesetter } from './components/FormulaTypesetter';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
 import { RepresentationComparisonLab } from './components/labs/FoundationLabs';
 import { QuaternionGABridgeLab } from './components/labs/QuaternionConceptLabs';
@@ -152,6 +153,7 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'cameras-rays' ? <CamerasRaysLesson />
       : lesson.id === 'dynamics' ? <DynamicsLesson />
       : <LessonBlueprint lesson={lesson} />}
+    <FormulaTypesetter lessonId={lesson.id} />
 
     <nav className="lesson-pagination" aria-label="前后课程">
       {previous ? <button onClick={() => onNext(previous.id)}><span>← 上一课</span><b>{previous.number} {previous.title}</b></button> : <span />}

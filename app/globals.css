@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'katex/dist/katex.min.css';
 
 :root {
   --ink: #111922;
@@ -160,8 +161,11 @@ button { cursor: pointer; }
 .comparison-table p { color: #5c655f; line-height: 1.45; }
 .equation-card { margin: 28px 0; padding: 22px 25px; border-left: 3px solid var(--mint); background: #e7e4dc; }
 .equation-card.large { margin: 42px 0; padding: 29px 30px; }
-.equation-card code { display: block; overflow-x: auto; color: #18352d; font: 20px/1.5 Georgia, 'Times New Roman', serif; white-space: nowrap; }
-.equation-card.large code { font-size: 24px; }
+.equation-card code { display: block; overflow-x: auto; color: #18352d; white-space: nowrap; }
+.equation-card .katex-display { margin: 0; overflow-x: auto; overflow-y: hidden; padding: .16em .08em; text-align: left; }
+.equation-card .katex { font-size: 1.2em; }
+.equation-card.large .katex { font-size: 1.42em; }
+.equation-card code.math-fallback { font: 20px/1.5 Georgia, 'Times New Roman', serif; }
 .equation-card figcaption { margin-top: 9px; color: #747b75; font-size: 11px; line-height: 1.5; }
 .checkpoint { margin: 53px 0; padding: 27px 30px; border: 1px solid var(--line); background: #f0ede4; }
 .checkpoint h3 { margin: 14px 0 17px; font-size: 20px; font-weight: 500; }
@@ -178,6 +182,7 @@ button { cursor: pointer; }
 .formula-bridge > i { color: var(--green); font: 22px Georgia, serif; text-align: center; font-style: normal; }
 .formula-bridge span { color: #6f7770; font: 9px ui-monospace, monospace; letter-spacing: .1em; }
 .formula-bridge code { color: #173b31; font: 18px Georgia, serif; }
+.formula-bridge .katex { font-size: 1.06em; }
 
 .rotation-lab { margin: 55px 0; }
 .lab-heading { display: flex; align-items: start; justify-content: space-between; gap: 30px; margin-bottom: 20px; }
