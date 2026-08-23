@@ -8,7 +8,7 @@ import { AlgebraAtlasLesson, BladeFactorizationLesson } from './components/lesso
 import { BladesGradesLesson, ContractionsLesson, DualityLesson, GeometricProductLesson, InvolutionsLesson, MeetJoinLesson, MetricSignatureLesson, OuterProductLesson, OutermorphismLesson, ProjectionLesson } from './components/lessons/GACoreLessons';
 import { QuaternionNumericsLesson, SlerpLesson } from './components/lessons/QuaternionAdvancedLessons';
 import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
-import { DoubleReflectionLesson, ReflectionLesson } from './components/lessons/TransformationLessons';
+import { BivectorExpLesson, DoubleReflectionLesson, NDRotationLesson, ReflectionLesson, RotorInterpolationLesson, RotorSandwichLesson } from './components/lessons/TransformationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
 export default function Home() {
@@ -106,6 +106,10 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'algebra-atlas' ? <AlgebraAtlasLesson />
       : lesson.id === 'reflection' ? <ReflectionLesson />
       : lesson.id === 'double-reflection' ? <DoubleReflectionLesson />
+      : lesson.id === 'rotor-sandwich' ? <RotorSandwichLesson />
+      : lesson.id === 'bivector-exp' ? <BivectorExpLesson />
+      : lesson.id === 'rotor-interpolation' ? <RotorInterpolationLesson />
+      : lesson.id === 'nd-rotation' ? <NDRotationLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">
