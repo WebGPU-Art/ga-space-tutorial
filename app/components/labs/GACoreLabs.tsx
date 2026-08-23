@@ -180,7 +180,7 @@ export function ProjectionRejectionLab() {
   const [azimuth, setAzimuth] = useState(38), [elevation, setElevation] = useState(48), [planeTilt, setPlaneTilt] = useState(24), [length, setLength] = useState(1.35);
   const az = toRad(azimuth), el = toRad(elevation), tilt = toRad(planeTilt);
   const vector: Vec3 = [length * Math.cos(el) * Math.cos(az), length * Math.cos(el) * Math.sin(az), length * Math.sin(el)];
-  const planeU: Vec3 = [1, 0, 0], planeW: Vec3 = [0, Math.cos(tilt), Math.sin(tilt)], normal: Vec3 = [0, -Math.sin(tilt), Math.cos(tilt)];
+  const planeW: Vec3 = [0, Math.cos(tilt), Math.sin(tilt)], normal: Vec3 = [0, -Math.sin(tilt), Math.cos(tilt)];
   const normalAmount = vector[0] * normal[0] + vector[1] * normal[1] + vector[2] * normal[2];
   const rejection: Vec3 = [normal[0] * normalAmount, normal[1] * normalAmount, normal[2] * normalAmount];
   const projection: Vec3 = [vector[0] - rejection[0], vector[1] - rejection[1], vector[2] - rejection[2]];

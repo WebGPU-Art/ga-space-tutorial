@@ -1,6 +1,6 @@
 'use client';
 
-import { BivectorExpLogLab, DoubleReflectionLab, FourDRotationLab, ReflectionLab, RotorActionLab, RotorInterpolationLab } from '../labs/TransformationLabs';
+import { BivectorExpLogLab, DoubleReflectionLab, FourDRotationLab, LieAlgebraLab, PinSpinCoverLab, ReflectionLab, RotorActionLab, RotorInterpolationLab } from '../labs/TransformationLabs';
 
 export function ReflectionLesson(){
   return <div className="lesson-body">
@@ -70,5 +70,33 @@ export function NDRotationLesson(){
     <section className="prose-block compact"><span>02 · BIVECTOR CANONICAL PLANES</span><h2>高维旋转生成元可分解为互相交换的简单双向量</h2><p>在欧氏空间中，一般反对称生成元可以在合适正交基下分解成若干互相正交的二维旋转块。四维最多出现两个块；更高维则继续增加。这里不展开谱分解，只需把“双向量指定旋转平面”作为高维直觉。</p></section>
     <section className="definition-callout"><span>不要寻找 4D 轴</span><p>四维双旋转通常没有一条像三维那样的固定轴。用两个平面角或双向量生成元描述，比强行类比三维轴角更准确。</p></section>
     <section className="checkpoint"><span>图形任务</span><h3>识别三类四维旋转</h3><ul><li>把任一平面角归零，观察分类变为 simple rotation。</li><li>令两个角绝对值相同，观察 isoclinic 状态。</li><li>改变投影深度，区分“投影形状改变”与“四维旋转参数改变”。</li></ul></section>
+  </div>;
+}
+
+export function PinSpinLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · FROM INDIVIDUAL VERSORS TO TRANSFORMATION GROUPS</span><h2>Pin 收集全部正交变换，Spin 收集其中的偶数次反射</h2><p>前六课一直在构造单个变换；现在把所有可复合、可逆并含恒等元的变换组织成群。设空间度量非退化，Pin(p,q) 由平方为 ±1 的向量乘积生成。含 k 个向量因子的 versor V 通过 <i>ρ(V)(x)=(−1)ᵏVxV⁻¹</i> 作用于向量。</p><p>k 为奇数时，变换含奇数次反射，行列式为 −1；k 为偶数时定向保持，V 位于 Clifford 代数的偶部，这个子群就是 Spin(p,q)。</p></section>
+    <figure className="equation-card large"><code>Spin(p,q) = Pin(p,q) ∩ Cl⁺(p,q), &nbsp;&nbsp; det ρ(V) = (−1)ᵏ</code><figcaption>显式因子分解并不唯一，但因子个数的奇偶性与变换是否保持定向一致。</figcaption></figure>
+    <PinSpinCoverLab />
+    <section className="derivation-steps"><article><span>one vector</span><h3>一次反射</h3><code>ρ(n)(x)=−nxn⁻¹</code><p>属于 O(p,q)，但不属于 SO(p,q)。</p></article><article><span>even versor</span><h3>偶数次反射</h3><code>R=n₂n₁, ρ(R)(x)=RxR⁻¹</code><p>两个奇次符号抵消，得到定向保持的 rotor。</p></article><article><span>composition</span><h3>群乘法</h3><code>ρ(V₂V₁)=ρ(V₂)∘ρ(V₁)</code><p>代数乘法顺序直接编码变换复合。</p></article></section>
+    <section className="prose-block compact"><span>02 · WHY IT IS A DOUBLE COVER</span><h2>V 与 −V 是不同群元素，却投影到同一正交变换</h2><p>在 sandwich 中，左右两个负号总会抵消，所以 <i>ρ(V)=ρ(−V)</i>。覆盖映射的核恰好是 &#123;+1,−1&#125;，因此每个正交变换有两个 Pin 代表，每个特殊正交变换有两个 Spin 代表。</p></section>
+    <div className="formula-bridge"><div><span>全部正交变换</span><code>1 → &#123;±1&#125; → Pin(p,q)</code><code>Pin(p,q) → O(p,q) → 1</code></div><i>⊃</i><div><span>定向保持部分</span><code>1 → &#123;±1&#125; → Spin(p,q)</code><code>Spin(p,q) → SO(p,q) → 1</code></div></div>
+    <section className="definition-callout"><span>twisted adjoint</span><p>奇 versor 不能直接沿用 rotor 的 <b>VxV⁻¹</b>：一次反射需要额外负号。统一写法是 <b>(−1)ᵏVxV⁻¹</b>，等价地使用 grade involution 定义 twisted adjoint。不同教材可能把 involution 放在左因子或逆上，比较公式时应先核对约定。</p></section>
+    <section className="prose-block compact"><span>03 · FAMILIAR SPECIAL CASES</span><h2>复数、单位四元数和一般 rotor 是同一张图上的不同维数</h2><p><i>Spin(2)≅U(1)</i>，单位复数覆盖二维旋转；<i>Spin(3)≅SU(2)</i>，单位四元数覆盖 SO(3)；<i>Spin(4)≅SU(2)×SU(2)</i>，对应上一课看到的两个独立四维旋转平面。Spin 不是额外添加的表示，而是 Clifford 乘法内部已经存在的旋转群。</p></section>
+    <section className="checkpoint"><span>实验任务</span><h3>用奇偶性预测群与不变量</h3><ul><li>把反射因子数从 1 调到 4，先预测 det ρ(V)，再看读数。</li><li>切换 V 与 −V，确认画布中的最终坐标框架完全不变。</li><li>解释为什么“属于偶子代数”是进入 Spin 的必要条件，但任意偶多向量并不自动是单位 rotor。</li></ul></section>
+  </div>;
+}
+
+export function LieAlgebraLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · LINEARIZE THE GROUP NEAR IDENTITY</span><h2>旋转群是弯曲的，但恒等元附近由双向量线性描述</h2><p>有限 rotor 位于非线性的单位约束曲面上；把时间参数 t 取很小，<i>R(t)=exp(−tB/2)≈1−tB/2</i>。所有可能的双向量 B 构成 Spin(p,q) 在恒等元处的切空间，也就是旋转的 Lie 代数。</p><p>对欧氏 n 维空间，这个双向量空间有 n(n−1)/2 个独立分量，恰好对应反对称矩阵的自由度。GA 直接把每个自由度解释成一个定向旋转平面。</p></section>
+    <figure className="equation-card large"><code>R(t)=e⁻ᵗᴮ⁄², &nbsp;&nbsp; ẋ(0)=½(xB−Bx), &nbsp;&nbsp; dim Λ²(ℝⁿ)=n(n−1)/2</code><figcaption>双向量不是有限旋转本身，而是旋转路径在恒等元处的速度。</figcaption></figure>
+    <LieAlgebraLab />
+    <section className="derivation-steps"><article><span>tangent</span><h3>生成元</h3><code>B = −2 Ṙ(0)</code><p>在单位 rotor 曲面的切空间中，reverse 使双向量变号。</p></article><article><span>bracket</span><h3>交换子封闭</h3><code>[A,B]=AB−BA</code><p>两个双向量的交换子仍是双向量，因此可作为 Lie bracket。</p></article><article><span>action</span><h3>无穷小作用</h3><code>δx=½(xB−Bx)δt</code><p>它是 sandwich 作用对时间求导的结果。</p></article></section>
+    <section className="prose-block compact"><span>02 · BCH MEASURES NONCOMMUTATIVITY</span><h2>两个小旋转的生成元只在一阶近似下直接相加</h2><p>若 A 与 B 交换，则 <i>exp(B)exp(A)=exp(A+B)</i>。一般旋转平面并不交换，Baker–Campbell–Hausdorff 公式会加入 <i>½[B,A]</i> 及更高嵌套交换子。画布中先绕 x 再绕 y，缺失的二阶项指向 z 方向；这就是有限旋转顺序差异在局部的第一道痕迹。</p></section>
+    <figure className="equation-card"><code>log(eᴮeᴬ)=A+B+½[B,A]+1/12([B,[B,A]]+[A,[A,B]])+⋯</code><figcaption>这里 [A,B]=AB−BA。若资料把 GA commutator product 定义为 A×B=(AB−BA)/2，系数会随之改写。</figcaption></figure>
+    <section className="prose-block compact"><span>03 · LOCAL COORDINATES, NOT GLOBAL ADDITION</span><h2>log 把附近姿态放进同一张局部坐标图</h2><p>状态估计、角速度积分和优化常在 log 空间更新：先把相对 rotor 映为双向量增量，再进行线性运算，最后 exp 回群。该做法只在选定分支和局部邻域内可靠；跨过 log 分支或姿态分散太大时，需要重新选参考点。</p></section>
+    <section className="definition-callout"><span>量级检查</span><p>将 A、B 同时缩小为 εA、εB：直接相加的误差从 <b>O(ε²)</b> 开始；加入 ½[B,A] 后，剩余误差从 <b>O(ε³)</b> 开始。实验里的共同尺度滑块正是用来验证这个阶数关系。</p></section>
+    <section className="checkpoint"><span>实验任务</span><h3>读出 BCH 的误差阶</h3><ul><li>逐步减小 ε，比较红色 A+B 误差与紫色 BCH₂ 误差谁下降得更快。</li><li>令 A 或 B 为零，确认交换子修正与两种误差都消失。</li><li>交换 α、β 的角色并思考：为什么二阶 z 分量会改变符号？</li></ul></section>
   </div>;
 }

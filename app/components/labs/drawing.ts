@@ -46,7 +46,7 @@ export function rotateY([x, y, z]: Vec3, angle: number): Vec3 {
 }
 
 export function projectIso(point: Vec3, cx: number, cy: number, scale: number, yaw = -.62, pitch = .48) {
-  const [x, y, z] = rotateX(rotateY(point, yaw), pitch);
+  const [x, y] = rotateX(rotateY(point, yaw), pitch);
   return [cx + x * scale, cy - y * scale] as const;
 }
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { InteractiveCanvas, type CanvasFrame } from './InteractiveCanvas';
-import { drawArrow2D, drawDarkGrid, toRad } from './drawing';
+import { drawDarkGrid, toRad } from './drawing';
 import { LabFrame, Slider } from './LabChrome';
 
 export function SlerpLab() {

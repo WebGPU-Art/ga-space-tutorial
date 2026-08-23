@@ -8,23 +8,24 @@ import { AlgebraAtlasLesson, BladeFactorizationLesson } from './components/lesso
 import { BladesGradesLesson, ContractionsLesson, DualityLesson, GeometricProductLesson, InvolutionsLesson, MeetJoinLesson, MetricSignatureLesson, OuterProductLesson, OutermorphismLesson, ProjectionLesson } from './components/lessons/GACoreLessons';
 import { QuaternionNumericsLesson, SlerpLesson } from './components/lessons/QuaternionAdvancedLessons';
 import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
-import { BivectorExpLesson, DoubleReflectionLesson, NDRotationLesson, ReflectionLesson, RotorInterpolationLesson, RotorSandwichLesson } from './components/lessons/TransformationLessons';
+import { HomogeneousModelLesson, PGA2DLesson } from './components/lessons/PGALessons';
+import { BivectorExpLesson, DoubleReflectionLesson, LieAlgebraLesson, NDRotationLesson, PinSpinLesson, ReflectionLesson, RotorInterpolationLesson, RotorSandwichLesson } from './components/lessons/TransformationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
 export default function Home() {
   const [selectedId, setSelectedId] = useState<string>('');
   const lesson = useMemo(() => allLessons.find(item => item.id === selectedId), [selectedId]);
-  const module = lesson ? modules.find(item => item.lessons.some(entry => entry.id === lesson.id)) : undefined;
+  const activeModule = lesson ? modules.find(item => item.lessons.some(entry => entry.id === lesson.id)) : undefined;
 
   return <main className="textbook-shell">
     <CourseSidebar modules={modules} selectedId={selectedId} onSelect={setSelectedId} onHome={() => setSelectedId('')} />
     <div className="textbook-main">
       <header className="textbook-topbar">
-        <div><span className="signal-dot" /> <b>GA / SPACE</b><span className="crumb">{lesson ? `${module?.number} · ${lesson.number} ${lesson.title}` : '课程总览'}</span></div>
+        <div><span className="signal-dot" /> <b>GA / SPACE</b><span className="crumb">{lesson ? `${activeModule?.number} · ${lesson.number} ${lesson.title}` : '课程总览'}</span></div>
         <div><span>中文</span><span>数学 · 图形 · 代码</span></div>
       </header>
       <div className="reader-scroll">
-        {!lesson ? <CourseOverview onSelect={setSelectedId} /> : <LessonPage lesson={lesson} moduleTitle={module?.title ?? ''} onNext={setSelectedId} />}
+        {!lesson ? <CourseOverview onSelect={setSelectedId} /> : <LessonPage lesson={lesson} moduleTitle={activeModule?.title ?? ''} onNext={setSelectedId} />}
       </div>
     </div>
   </main>;
@@ -110,6 +111,10 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'bivector-exp' ? <BivectorExpLesson />
       : lesson.id === 'rotor-interpolation' ? <RotorInterpolationLesson />
       : lesson.id === 'nd-rotation' ? <NDRotationLesson />
+      : lesson.id === 'pin-spin-groups' ? <PinSpinLesson />
+      : lesson.id === 'lie-algebra' ? <LieAlgebraLesson />
+      : lesson.id === 'pga-2d' ? <PGA2DLesson />
+      : lesson.id === 'homogeneous-model' ? <HomogeneousModelLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">

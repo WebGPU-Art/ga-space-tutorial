@@ -106,3 +106,56 @@ export function FourDRotationLab(){
     <div className="lab-controls"><Slider label="XY 平面角" value={angleXY} min={-180} max={180} suffix="°" onChange={setAngleXY}/><Slider label="ZW 平面角" value={angleZW} min={-180} max={180} suffix="°" onChange={setAngleZW}/><Slider label="4D 投影深度" value={depth} min={.1} max={1} step={.01} onChange={setDepth}/></div>
   </LabFrame>;
 }
+
+type Vec2 = readonly [number, number];
+
+function reflect2D([x,y]:Vec2,mirrorAngle:number):Vec2{
+  const c=Math.cos(2*mirrorAngle),s=Math.sin(2*mirrorAngle);
+  return [c*x+s*y,s*x-c*y];
+}
+
+export function PinSpinCoverLab(){
+  const [factorCount,setFactorCount]=useState(2),[mirrorGap,setMirrorGap]=useState(31),[representativeSign,setRepresentativeSign]=useState<1|-1>(1);
+  const base=-toRad(mirrorGap)*(factorCount-1)/2,mirrors=Array.from({length:factorCount},(_,index)=>base+index*toRad(mirrorGap));
+  const transform=(input:Vec2)=>mirrors.reduce((value,angle)=>reflect2D(value,angle),input);
+  const xPrime=transform([1,0]),yPrime=transform([0,1]),det=xPrime[0]*yPrime[1]-xPrime[1]*yPrime[0],isSpin=factorCount%2===0;
+  const draw=({ctx,width,height}:CanvasFrame)=>{
+    drawDarkGrid(ctx,width,height);const cx=width*.43,cy=height*.58,unit=Math.min(width,height)*.24,lineLength=Math.max(width,height)*.8;
+    mirrors.forEach((angle,index)=>{ctx.beginPath();ctx.moveTo(cx-lineLength*Math.cos(angle),cy+lineLength*Math.sin(angle));ctx.lineTo(cx+lineLength*Math.cos(angle),cy-lineLength*Math.sin(angle));ctx.strokeStyle=`rgba(${index%2?'75,218,176':'182,155,242'},${.18+index*.08})`;ctx.lineWidth=1.2;ctx.stroke();});
+    drawArrow2D(ctx,cx,cy,cx+unit,cy,'rgba(239,189,85,.38)','e₁',true);drawArrow2D(ctx,cx,cy,cx,cy-unit,'rgba(182,155,242,.38)','e₂',true);
+    drawArrow2D(ctx,cx,cy,cx+xPrime[0]*unit,cy-xPrime[1]*unit,'#efbd55','ρ(V)e₁');drawArrow2D(ctx,cx,cy,cx+yPrime[0]*unit,cy-yPrime[1]*unit,'#4bdab0','ρ(V)e₂');
+    const diagramX=width*.78,top=height*.18,row=height*.12;ctx.textAlign='center';ctx.font='11px ui-monospace, monospace';
+    const node=(y:number,label:string,active:boolean)=>{ctx.fillStyle=active?'rgba(75,218,176,.16)':'rgba(216,227,224,.07)';ctx.strokeStyle=active?'#4bdab0':'rgba(216,227,224,.24)';ctx.lineWidth=1;ctx.fillRect(diagramX-58,y-17,116,34);ctx.strokeRect(diagramX-58,y-17,116,34);ctx.fillStyle=active?'#8fe5cd':'#a8b7b4';ctx.fillText(label,diagramX,y+4);};
+    node(top,'Pin(2)',!isSpin);node(top+row,'O(2)',!isSpin);node(top+2.35*row,'Spin(2)',isSpin);node(top+3.35*row,'SO(2)',isSpin);
+    ctx.strokeStyle='rgba(216,227,224,.35)';ctx.beginPath();ctx.moveTo(diagramX,top+18);ctx.lineTo(diagramX,top+row-18);ctx.moveTo(diagramX,top+2.35*row+18);ctx.lineTo(diagramX,top+3.35*row-18);ctx.stroke();ctx.fillStyle='#7e918d';ctx.font='9px ui-monospace, monospace';ctx.fillText('2 : 1',diagramX+29,top+row*.52);ctx.fillText('2 : 1',diagramX+29,top+row*2.87);ctx.textAlign='left';
+    ctx.fillStyle='#9baba8';ctx.fillText(`${representativeSign>0?'V':'−V'} gives the same frame`,20,23);
+  };
+  return <LabFrame title="反射因子的奇偶性决定落在 Pin 还是 Spin" tag="LAB · PIN / SPIN COVER" metrics={[["factors",String(factorCount)],["det ρ(V)",det.toFixed(0)],["domain",isSpin?'Spin(2) ⊂ Pin(2)':'Pin(2) \\ Spin(2)']] }>
+    <InteractiveCanvas draw={draw} dependencies={[factorCount,mirrorGap,representativeSign]} label="Pin 与 Spin 群覆盖正交群的反射复合实验" />
+    <div className="lab-controls covering-controls"><Slider label="反射因子数 k" value={factorCount} min={1} max={4} onChange={value=>setFactorCount(Math.round(value))}/><Slider label="相邻镜面夹角" value={mirrorGap} min={-70} max={70} suffix="°" onChange={setMirrorGap}/><button className={representativeSign<0?'active danger':''} onClick={()=>setRepresentativeSign(value=>value===1?-1:1)}>{representativeSign>0?'当前代表：V':'当前代表：−V'}</button></div>
+    <div className="quaternion-readout"><code>ρ(V)(x) = (−1)ᵏ V x V⁻¹</code><code>det ρ(V) = (−1)ᵏ = {det.toFixed(0)} &nbsp;·&nbsp; ρ(V) = ρ(−V)</code></div>
+  </LabFrame>;
+}
+
+function expRotationVector(vector:Vec3,input:Vec3):Vec3{
+  const angle=Math.hypot(...vector);if(angle<1e-9)return input;
+  return rotateAroundAxis(input,[vector[0]/angle,vector[1]/angle,vector[2]/angle],angle);
+}
+
+export function LieAlgebraLab(){
+  const [alpha,setAlpha]=useState(24),[beta,setBeta]=useState(31),[scale,setScale]=useState(1);
+  const a=toRad(alpha)*scale,b=toRad(beta)*scale,source:Vec3=[.78,.5,.34];
+  const afterA=rotateAroundAxis(source,[1,0,0],a),exact=rotateAroundAxis(afterA,[0,1,0],b),sum=expRotationVector([a,b,0],source),bch=expRotationVector([a,b,-a*b/2],source);
+  const distance=(u:Vec3,v:Vec3)=>Math.hypot(u[0]-v[0],u[1]-v[1],u[2]-v[2]),sumError=distance(sum,exact),bchError=distance(bch,exact);
+  const draw=({ctx,width,height}:CanvasFrame)=>{
+    drawDarkGrid(ctx,width,height);const center=[width*.48,height*.58] as const,unit=Math.min(width,height)*.24;drawAxes3D(ctx,center,unit*.72);
+    drawProjectedArrow(ctx,source,center,unit,'rgba(216,227,224,.38)','x',true);drawProjectedArrow(ctx,exact,center,unit,'#4bdab0','exact');drawProjectedArrow(ctx,sum,center,unit,'#f07f63','A+B',true);drawProjectedArrow(ctx,bch,center,unit,'#b69bf2','BCH₂',true);
+    ctx.fillStyle='#9aaba8';ctx.font='10px ui-monospace, monospace';ctx.fillText('exp(B) exp(A) compared with one exponential',20,23);
+    const x=width-154,y=height-82,w=112;ctx.fillStyle='rgba(216,227,224,.07)';ctx.fillRect(x,y,w,48);ctx.fillStyle='#829692';ctx.fillText('missing bracket',x+9,y+16);ctx.fillStyle='#f07f63';ctx.fillRect(x+9,y+26,Math.min(92,sumError*180),4);ctx.fillStyle='#b69bf2';ctx.fillRect(x+9,y+36,Math.min(92,bchError*180),4);
+  };
+  return <LabFrame title="BCH 用交换子修正“小旋转直接相加”的误差" tag="LAB · LIE ALGEBRA / BCH" metrics={[["|A+B error|",sumError.toExponential(2)],["|BCH₂ error|",bchError.toExponential(2)],["½[B,A] z",(-a*b/2).toFixed(3)]]}>
+    <InteractiveCanvas draw={draw} dependencies={[alpha,beta,scale]} label="两个小旋转的精确复合、线性和与二阶 BCH 对照实验" />
+    <div className="lab-controls"><Slider label="A：绕 x 的角" value={alpha} min={-55} max={55} suffix="°" onChange={setAlpha}/><Slider label="B：绕 y 的角" value={beta} min={-55} max={55} suffix="°" onChange={setBeta}/><Slider label="共同小量尺度 ε" value={scale} min={.05} max={1} step={.01} onChange={setScale}/></div>
+    <div className="quaternion-readout"><code>log(exp B exp A) = A + B + ½[B,A] + O(ε³)</code><code>[B,A] points along −z for this order &nbsp;·&nbsp; noncommutativity enters at O(ε²)</code></div>
+  </LabFrame>;
+}
