@@ -4,9 +4,11 @@ import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
 import { ComplexRotationLesson, CoordinatesLesson, DotProductLesson, OrientationLesson } from './components/lessons/FoundationLessons';
+import { AlgebraAtlasLesson, BladeFactorizationLesson } from './components/lessons/AdvancedCoreLessons';
 import { BladesGradesLesson, ContractionsLesson, DualityLesson, GeometricProductLesson, InvolutionsLesson, MeetJoinLesson, MetricSignatureLesson, OuterProductLesson, OutermorphismLesson, ProjectionLesson } from './components/lessons/GACoreLessons';
 import { QuaternionNumericsLesson, SlerpLesson } from './components/lessons/QuaternionAdvancedLessons';
 import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
+import { DoubleReflectionLesson, ReflectionLesson } from './components/lessons/TransformationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
 export default function Home() {
@@ -100,6 +102,10 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'meet-join' ? <MeetJoinLesson />
       : lesson.id === 'contractions' ? <ContractionsLesson />
       : lesson.id === 'outermorphisms' ? <OutermorphismLesson />
+      : lesson.id === 'blade-factorization' ? <BladeFactorizationLesson />
+      : lesson.id === 'algebra-atlas' ? <AlgebraAtlasLesson />
+      : lesson.id === 'reflection' ? <ReflectionLesson />
+      : lesson.id === 'double-reflection' ? <DoubleReflectionLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">
