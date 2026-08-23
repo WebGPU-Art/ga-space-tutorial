@@ -34,11 +34,11 @@ export const modules: Module[] = [
   {
     id: 'quaternions', number: '01', title: '四元数与三维旋转', subtitle: '先掌握可操作的旋转语言', color: '#4bdab0',
     lessons: [
-      { id: 'quaternion-anatomy', number: '1.1', title: '四元数的四个分量', summary: '理解标量部与虚部，不把四元数误解成普通四维向量。', concepts: ['Hamilton 乘法', '共轭', '模'], lab: '四元数乘法表', status: 'outline', minutes: 20 },
-      { id: 'axis-angle', number: '1.2', title: '轴角与单位四元数', summary: '从旋转轴和半角构造单位四元数，理解为什么角度必须折半。', concepts: ['轴角', '半角', '单位四元数'], lab: '轴角—四元数双向转换', status: 'outline', minutes: 24 },
+      { id: 'quaternion-anatomy', number: '1.1', title: '四元数的四个分量', summary: '理解标量部与虚部，不把四元数误解成普通四维向量。', concepts: ['Hamilton 乘法', '共轭', '模'], lab: '四元数乘法表', status: 'ready', minutes: 20 },
+      { id: 'axis-angle', number: '1.2', title: '轴角与单位四元数', summary: '从旋转轴和半角构造单位四元数，理解为什么角度必须折半。', concepts: ['轴角', '半角', '单位四元数'], lab: '轴角—四元数双向转换', status: 'ready', minutes: 24 },
       { id: 'quaternion-lab', number: '1.3', title: '实验：绕任意轴旋转', summary: '在三维空间中调节旋转角和旋转轴，观察 qvq⁻¹ 如何保持长度。', concepts: ['夹心积', '范数保持', '任意轴'], lab: 'WebGPU 任意轴旋转实验', status: 'ready', minutes: 25 },
-      { id: 'composition', number: '1.4', title: '旋转复合与不可交换性', summary: '比较先绕 x 再绕 y 与相反顺序，建立群运算直觉。', concepts: ['复合', '非交换', '局部/世界坐标'], lab: '交换旋转顺序', status: 'outline', minutes: 20 },
-      { id: 'double-cover', number: '1.5', title: '双覆盖：q 与 −q', summary: '理解两个相反四元数为何描述同一空间旋转，以及 720° 现象。', concepts: ['SO(3)', 'Spin(3)', '双覆盖'], lab: '四元数球上的 720° 路径', status: 'outline', minutes: 22 },
+      { id: 'composition', number: '1.4', title: '旋转复合与不可交换性', summary: '比较先绕 x 再绕 y 与相反顺序，建立群运算直觉。', concepts: ['复合', '非交换', '局部/世界坐标'], lab: '交换旋转顺序', status: 'ready', minutes: 20 },
+      { id: 'double-cover', number: '1.5', title: '双覆盖：q 与 −q', summary: '理解两个相反四元数为何描述同一空间旋转，以及 720° 现象。', concepts: ['SO(3)', 'Spin(3)', '双覆盖'], lab: '四元数球上的 720° 路径', status: 'ready', minutes: 22 },
       { id: 'slerp', number: '1.6', title: 'SLERP 与旋转插值', summary: '沿单位四元数球的大圆，以恒定角速度在姿态之间插值。', concepts: ['球面插值', '最短弧', '姿态动画'], lab: '线性插值与 SLERP 对照', status: 'outline', minutes: 26 },
       { id: 'quaternion-to-ga', number: '1.7', title: '桥梁：四元数就是偶子代数', summary: '把 i、j、k 重新解释为三个定向平面，看到四元数正是 Cl⁺(3,0) 的一种写法。', concepts: ['Cl⁺(3,0)', '双向量基', '代数同构'], lab: '四元数基与双向量基对照', status: 'ready', minutes: 28 },
       { id: 'quaternion-numerics', number: '1.8', title: '归一化、漂移与数值稳健性', summary: '理解浮点误差如何让单位四元数偏离单位球，以及重归一化、符号选择和小角近似。', concepts: ['normalization', 'floating point', 'small angle'], lab: '累计旋转误差实验', status: 'outline', minutes: 22 },

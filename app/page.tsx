@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
 import { ComplexRotationLesson, CoordinatesLesson, DotProductLesson, OrientationLesson } from './components/lessons/FoundationLessons';
+import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
 export default function Home() {
@@ -79,7 +80,11 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'coordinates-vectors' ? <CoordinatesLesson />
       : lesson.id === 'dot-norm-angle' ? <DotProductLesson />
       : lesson.id === 'orientation-handedness' ? <OrientationLesson />
+      : lesson.id === 'quaternion-anatomy' ? <QuaternionAnatomyLesson />
+      : lesson.id === 'axis-angle' ? <AxisAngleLesson />
       : lesson.id === 'quaternion-lab' ? <QuaternionLesson />
+      : lesson.id === 'composition' ? <CompositionLesson />
+      : lesson.id === 'double-cover' ? <DoubleCoverLesson />
       : lesson.id === 'quaternion-to-ga' ? <QuaternionBridgeLesson />
       : <LessonBlueprint lesson={lesson} />}
 

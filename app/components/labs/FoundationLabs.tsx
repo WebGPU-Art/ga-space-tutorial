@@ -2,23 +2,7 @@
 
 import { useState } from 'react';
 import { InteractiveCanvas, type CanvasFrame } from './InteractiveCanvas';
-
-const rad = (degrees: number) => degrees * Math.PI / 180;
-
-function plane(ctx: CanvasRenderingContext2D, width: number, height: number) {
-  ctx.fillStyle = '#111821'; ctx.fillRect(0, 0, width, height);
-  ctx.strokeStyle = 'rgba(152,170,174,.13)'; ctx.lineWidth = 1;
-  const step = 38;
-  for (let x = width / 2 % step; x < width; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
-  for (let y = height / 2 % step; y < height; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
-}
-
-function arrow(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, color: string, label: string, dashed = false) {
-  const angle = Math.atan2(y2 - y1, x2 - x1);
-  ctx.beginPath(); ctx.setLineDash(dashed ? [5, 5] : []); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.strokeStyle = color; ctx.lineWidth = 2.4; ctx.stroke(); ctx.setLineDash([]);
-  ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2 - 10 * Math.cos(angle - .42), y2 - 10 * Math.sin(angle - .42)); ctx.lineTo(x2 - 10 * Math.cos(angle + .42), y2 - 10 * Math.sin(angle + .42)); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
-  ctx.font = '12px ui-monospace, monospace'; ctx.fillText(label, x2 + 8, y2 - 8);
-}
+import { drawArrow2D as arrow, drawDarkGrid as plane, toRad as rad } from './drawing';
 
 function Slider({ label, value, min, max, step = 1, suffix = '°', onChange }: { label: string; value: number; min: number; max: number; step?: number; suffix?: string; onChange: (value: number) => void }) {
   return <label><span>{label}</span><output>{value}{suffix}</output><input aria-label={label} type="range" min={min} max={max} step={step} value={value} onChange={event => onChange(Number(event.target.value))} /></label>;

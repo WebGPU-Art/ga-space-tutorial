@@ -229,6 +229,18 @@ button { cursor: pointer; }
 .sign-table b { display: block; margin: 15px 0 6px; color: #285e50; font: 17px Georgia, serif; }
 .sign-table p { margin: 0; color: #777e78; font-size: 11px; }
 
+.quaternion-table { display: grid; grid-template-columns: repeat(5, 1fr); margin: 35px 0; border: 1px solid var(--line); background: var(--line); gap: 1px; }
+.quaternion-table > * { display: grid; min-height: 48px; place-items: center; background: var(--paper); color: #4e5b55; font: 15px Georgia, serif; }
+.quaternion-table > b { background: #e5e1d6; color: #245e4e; font-weight: 500; }
+.quaternion-table > span:first-child { background: #173d33; color: #9ee8d1; }
+.quaternion-readout { display: grid; gap: 1px; margin-top: 20px; border: 1px solid var(--line); background: var(--line); }
+.quaternion-readout code { overflow-x: auto; padding: 11px 14px; background: #e9e6dc; color: #285f50; font: 13px/1.4 ui-monospace, monospace; white-space: nowrap; }
+.composition-controls { grid-template-columns: repeat(2, 1fr); }
+.composition-controls button { min-height: 38px; border: 1px solid var(--line); background: #ebe7dd; color: #68716b; font-size: 10px; }
+.composition-controls button.active { border-color: #83cbb7; background: #dff1eb; color: #1e715c; }
+.composition-controls button.active.violet { border-color: #b9a7e6; background: #e9e2f5; color: #675091; }
+.lab-controls.one-slider { grid-template-columns: 1fr; }
+
 .blueprint-notice { display: grid; grid-template-columns: 140px 1fr; gap: 25px; padding: 20px; border: 1px solid #c9c4b8; background: #eeeadf; }
 .blueprint-notice > span { color: #7e6aad; font: 9px ui-monospace, monospace; letter-spacing: .1em; }
 .blueprint-notice b { font-size: 14px; }
