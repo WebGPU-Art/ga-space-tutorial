@@ -58,7 +58,7 @@ function SpaceCanvas({ angle, tilt, azimuth, elevation }: { angle: number; tilt:
       const context = canvas.getContext('webgpu') as unknown as { configure: (x: unknown) => void; getCurrentTexture: () => { createView: () => unknown } };
       if (!context || disposed) return;
       const format = gpu.getPreferredCanvasFormat();
-      const shader = device.createShaderModule({ code: `@vertex fn v(@builtin(vertex_index) i:u32)->@builtin(position) vec4f { var p=array<vec2f,3>(vec2f(-1.,-1.),vec2f(3.,-1.),vec2f(-1.,3.)); return vec4f(p[i],0.,1.); } @fragment fn f(@builtin(position) p:vec4f)->@location(0) vec4f { let x=fract(p.x/42.); let y=fract(p.y/42.); let g=step(x,.018)+step(y,.018); return vec4f(.16,.95,.73,g*.075); }` });
+      const shader = device.createShaderModule({ code: `@vertex fn v(@builtin(vertex_index) i:u32)->@builtin(position) vec4f { var p=array<vec2f,3>(vec2f(-1.,-1.),vec2f(3.,-1.),vec2f(-1.,3.)); return vec4f(p[i],0.,1.); } @fragment fn f(@builtin(position) p:vec4f)->@location(0) vec4f { let phase:f32=${(angle / 360).toFixed(4)}; let axis:f32=${((azimuth + elevation) / 360).toFixed(4)}; let u=(p.x*cos(phase*6.283)+p.y*sin(phase*6.283))/42.; let v=(p.y*cos(axis*6.283)-p.x*sin(axis*6.283))/42.; let g=step(fract(u),.018)+step(fract(v),.018); return vec4f(.16,.95,.73,g*.075); }` });
       const pipeline = device.createRenderPipeline({ layout: 'auto', vertex: { module: shader, entryPoint: 'v' }, fragment: { module: shader, entryPoint: 'f', targets: [{ format, blend: { color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' }, alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha' } } }] }, primitive: { topology: 'triangle-list' } });
       const render = () => {
         if (disposed) return;
@@ -71,7 +71,7 @@ function SpaceCanvas({ angle, tilt, azimuth, elevation }: { angle: number; tilt:
     };
     let cleanup: (() => void) | undefined; setup().then(value => { cleanup = value; });
     return () => { disposed = true; cleanup?.(); };
-  }, []);
+  }, [angle, azimuth, elevation]);
   return <><canvas ref={ref} className="space-canvas" aria-label="可交互的三维旋转空间图像" /><canvas ref={gpuRef} className="gpu-canvas" aria-hidden="true" /></>;
 }
 
