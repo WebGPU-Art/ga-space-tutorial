@@ -25,10 +25,10 @@ export const modules: Module[] = [
     id: 'orientation', number: '00', title: '建立旋转直觉', subtitle: '从熟悉的数系进入空间', color: '#e8b64b',
     lessons: [
       { id: 'why-ga', number: '0.1', title: '为什么需要几何代数？', summary: '从坐标、矩阵和叉积的局限出发，认识“对象与操作同属一种代数”的价值。', concepts: ['坐标无关', '几何对象', '结构保持'], lab: '同一旋转的三种表达对照', status: 'ready', minutes: 12 },
-      { id: 'complex-rotation', number: '0.2', title: '复数：二维旋转的原型', summary: '把复数乘法看成平面中的缩放与旋转，第一次遇见指数形式。', concepts: ['复平面', '欧拉公式', '单位圆'], lab: '拖动复数观察乘法轨迹', status: 'outline', minutes: 18 },
-      { id: 'coordinates-vectors', number: '0.3', title: '向量、基与坐标', summary: '区分几何向量与它在一组基中的坐标，为后续的基无关表达做准备。', concepts: ['向量空间', '基', '坐标变换'], lab: '切换基但保持向量不变', status: 'outline', minutes: 16 },
-      { id: 'dot-norm-angle', number: '0.4', title: '点积、范数与角度', summary: '回顾度量如何从点积产生长度、角度与正交关系，为几何积的度量部分做准备。', concepts: ['点积', '范数', '正交'], lab: '拖动向量观察投影与夹角', status: 'outline', minutes: 18 },
-      { id: 'orientation-handedness', number: '0.5', title: '定向、手性与坐标框架', summary: '区分空间的定向与坐标轴标签，理解换手性为何会改变伪向量符号。', concepts: ['orientation', 'handedness', 'frame'], lab: '左右手坐标系切换', status: 'outline', minutes: 18 },
+      { id: 'complex-rotation', number: '0.2', title: '复数：二维旋转的原型', summary: '把复数乘法看成平面中的缩放与旋转，第一次遇见指数形式。', concepts: ['复平面', '欧拉公式', '单位圆'], lab: '拖动复数观察乘法轨迹', status: 'ready', minutes: 18 },
+      { id: 'coordinates-vectors', number: '0.3', title: '向量、基与坐标', summary: '区分几何向量与它在一组基中的坐标，为后续的基无关表达做准备。', concepts: ['向量空间', '基', '坐标变换'], lab: '切换基但保持向量不变', status: 'ready', minutes: 16 },
+      { id: 'dot-norm-angle', number: '0.4', title: '点积、范数与角度', summary: '回顾度量如何从点积产生长度、角度与正交关系，为几何积的度量部分做准备。', concepts: ['点积', '范数', '正交'], lab: '拖动向量观察投影与夹角', status: 'ready', minutes: 18 },
+      { id: 'orientation-handedness', number: '0.5', title: '定向、手性与坐标框架', summary: '区分空间的定向与坐标轴标签，理解换手性为何会改变伪向量符号。', concepts: ['orientation', 'handedness', 'frame'], lab: '左右手坐标系切换', status: 'ready', minutes: 18 },
     ],
   },
   {

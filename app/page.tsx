@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
+import { ComplexRotationLesson, CoordinatesLesson, DotProductLesson, OrientationLesson } from './components/lessons/FoundationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
 export default function Home() {
@@ -73,7 +74,14 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       <div className="concept-row">{lesson.concepts.map(concept => <span key={concept}>{concept}</span>)}</div>
     </header>
 
-    {lesson.id === 'quaternion-lab' ? <QuaternionLesson /> : lesson.id === 'quaternion-to-ga' ? <QuaternionBridgeLesson /> : lesson.id === 'why-ga' ? <WhyGALesson /> : <LessonBlueprint lesson={lesson} />}
+    {lesson.id === 'why-ga' ? <WhyGALesson />
+      : lesson.id === 'complex-rotation' ? <ComplexRotationLesson />
+      : lesson.id === 'coordinates-vectors' ? <CoordinatesLesson />
+      : lesson.id === 'dot-norm-angle' ? <DotProductLesson />
+      : lesson.id === 'orientation-handedness' ? <OrientationLesson />
+      : lesson.id === 'quaternion-lab' ? <QuaternionLesson />
+      : lesson.id === 'quaternion-to-ga' ? <QuaternionBridgeLesson />
+      : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">
       {previous ? <button onClick={() => onNext(previous.id)}><span>← 上一课</span><b>{previous.number} {previous.title}</b></button> : <span />}
