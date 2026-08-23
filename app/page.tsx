@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
 import { ComplexRotationLesson, CoordinatesLesson, DotProductLesson, OrientationLesson } from './components/lessons/FoundationLessons';
-import { MetricSignatureLesson, OuterProductLesson } from './components/lessons/GACoreLessons';
+import { BladesGradesLesson, DualityLesson, GeometricProductLesson, InvolutionsLesson, MetricSignatureLesson, OuterProductLesson } from './components/lessons/GACoreLessons';
 import { QuaternionNumericsLesson, SlerpLesson } from './components/lessons/QuaternionAdvancedLessons';
 import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
@@ -92,6 +92,10 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'quaternion-numerics' ? <QuaternionNumericsLesson />
       : lesson.id === 'metric-signature' ? <MetricSignatureLesson />
       : lesson.id === 'outer-product' ? <OuterProductLesson />
+      : lesson.id === 'blades-grades' ? <BladesGradesLesson />
+      : lesson.id === 'geometric-product' ? <GeometricProductLesson />
+      : lesson.id === 'involutions' ? <InvolutionsLesson />
+      : lesson.id === 'duality' ? <DualityLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">
