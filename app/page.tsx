@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
-import { allLessons, modules, references, type Lesson } from './curriculum';
+import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
 export default function Home() {
   const [selectedId, setSelectedId] = useState<string>('');
@@ -30,7 +30,12 @@ function CourseOverview({ onSelect }: { onSelect: (id: string) => void }) {
     <section className="overview-hero">
       <div className="overview-kicker"><span>INTERACTIVE TEXTBOOK · V0.2</span><i>课程骨架已建立</i></div>
       <div className="overview-title-row"><div><h1>几何代数<br /><em>空间教程</em></h1><p>从四元数进入旋转，再沿着几何积、转子、PGA、CGA 与时空模型逐层展开。每一课按“直觉 → 图形 → 公式 → 实验 → 练习”组织。</p></div><div className="overview-orbit"><span>scalar</span><span>vector</span><span>bivector</span><i>R X R̃</i></div></div>
-      <div className="course-stats"><div><b>{modules.length}</b><span>学习单元</span></div><div><b>{allLessons.length}</b><span>递进课次</span></div><div><b>{Math.round(totalMinutes / 60)}</b><span>小时预计内容</span></div><div><b>24</b><span>规划互动实验</span></div></div>
+      <div className="course-stats"><div><b>{modules.length}</b><span>学习单元</span></div><div><b>{allLessons.length}</b><span>递进课次</span></div><div><b>{Math.round(totalMinutes / 60)}</b><span>小时预计内容</span></div><div><b>{allLessons.length}</b><span>实验设计</span></div></div>
+    </section>
+
+    <section className="audit-section">
+      <div className="section-heading"><div><span>CURRICULUM REVIEW</span><h2>知识链缺口审查</h2></div><p>不是简单增加章节：每一项新增内容都修复一个会导致后续理解跳跃的前置关系。</p></div>
+      <div className="audit-table"><div className="audit-head"><span>缺口</span><span>此前问题</span><span>本轮补齐</span></div>{auditFindings.map(item => <div key={item.gap}><b>{item.gap}</b><p>{item.before}</p><p><i />{item.added}</p></div>)}</div>
     </section>
 
     <section className="curriculum-section">
@@ -68,7 +73,7 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       <div className="concept-row">{lesson.concepts.map(concept => <span key={concept}>{concept}</span>)}</div>
     </header>
 
-    {lesson.id === 'quaternion-lab' ? <QuaternionLesson /> : lesson.id === 'why-ga' ? <WhyGALesson /> : <LessonBlueprint lesson={lesson} />}
+    {lesson.id === 'quaternion-lab' ? <QuaternionLesson /> : lesson.id === 'quaternion-to-ga' ? <QuaternionBridgeLesson /> : lesson.id === 'why-ga' ? <WhyGALesson /> : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">
       {previous ? <button onClick={() => onNext(previous.id)}><span>← 上一课</span><b>{previous.number} {previous.title}</b></button> : <span />}
@@ -92,6 +97,22 @@ function QuaternionLesson() {
     <figure className="equation-card large"><code>q = cos(θ/2) + (nₓi + nᵧj + n_zk) sin(θ/2)</code><figcaption>向量 v 被看成纯虚四元数，通过 v′ = qvq⁻¹ 完成旋转。</figcaption></figure>
     <QuaternionRotationLab />
     <section className="checkpoint"><span>实验任务</span><h3>不要只拖动滑块</h3><ul><li>固定旋转轴，将 θ 从 0° 拉到 360°，观察 q 的标量部何时变号。</li><li>保持 θ = 180°，移动轴向，观察此时 q 的标量部恒为多少。</li><li>让旋转轴接近原向量，验证平行分量为什么几乎不动。</li></ul></section>
+  </div>;
+}
+
+function QuaternionBridgeLesson() {
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · THE BRIDGE</span><h2>虚数单位其实是定向平面</h2><p>四元数的 <i>i、j、k</i> 常被介绍成三个新的“虚方向”。几何代数给出更具体的解释：它们可以对应三维空间中的三个基双向量。每一个双向量都代表一个<span>带方向的旋转平面</span>。</p></section>
+    <div className="basis-correspondence">
+      <div><span>QUATERNION</span><b>1</b><p>标量</p></div><div><span>Cl⁺(3,0)</span><b>1</b><p>grade 0</p></div>
+      <div><span>QUATERNION</span><b>i</b><p>i² = −1</p></div><div><span>Cl⁺(3,0)</span><b>−e₂₃</b><p>yz 旋转平面</p></div>
+      <div><span>QUATERNION</span><b>j</b><p>j² = −1</p></div><div><span>Cl⁺(3,0)</span><b>−e₃₁</b><p>zx 旋转平面</p></div>
+      <div><span>QUATERNION</span><b>k</b><p>k² = −1</p></div><div><span>Cl⁺(3,0)</span><b>−e₁₂</b><p>xy 旋转平面</p></div>
+    </div>
+    <figure className="equation-card large"><code>ℍ ≅ Cl⁺(3,0) = span&#123;1, e₂₃, e₃₁, e₁₂&#125;</code><figcaption>同构意味着乘法结构完全对应；四元数不是被“近似”为 GA，而是三维欧氏 GA 偶子代数的一种基表示。</figcaption></figure>
+    <section className="prose-block"><span>02 · FROM AXIS TO PLANE</span><h2>旋转轴只是三维里的对偶说法</h2><p>在三维中，单位轴 <i>n̂</i> 与垂直于它的旋转平面可以通过伪标量 <i>I = e₁₂₃</i> 互相转换：<i>B = I n̂</i>。四元数把旋转编码成“轴 + 半角”；转子则直接写成“平面 + 半角”。后者不依赖三维特有的轴—平面对偶，因此可以自然推广到更高维。</p></section>
+    <div className="formula-bridge"><div><span>四元数</span><code>q = cos(θ/2) + n̂ sin(θ/2)</code><code>v′ = qvq⁻¹</code></div><i>≅</i><div><span>几何代数转子</span><code>R = exp(−Bθ/2)</code><code>v′ = RvR̃</code></div></div>
+    <section className="checkpoint"><span>本课检查点</span><h3>这一桥梁解决三个疑问</h3><ul><li>四元数乘法为什么会自然地产生旋转复合？因为双向量本来就是旋转的生成元。</li><li>为什么要使用半角？因为 rotor 通过左右两次乘法完成夹心作用。</li><li>为什么 GA 能推广到高维？因为它用旋转平面而非三维特有的旋转轴来参数化。</li></ul></section>
   </div>;
 }
 
