@@ -126,9 +126,9 @@ export const modules: Module[] = [
       { id: 'product-tables', number: '8.2', title: '生成乘法表', summary: '由 metric 与位排列自动生成几何积符号和目标 blade。', concepts: ['Cayley table', 'metric', 'codegen'], lab: '切换 signature 的三维 Cayley table 生成器', status: 'ready', minutes: 30 },
       { id: 'numerical-validation', number: '8.3', title: '不变量、测试与数值稳定性', summary: '用范数、grade、sandwich 同态和退化度量不变量构建可验证的 GA 程序。', concepts: ['invariant', 'property testing', 'stability'], lab: 'float32 rotor 累计漂移与不变量监视器', status: 'ready', minutes: 30 },
       { id: 'webgpu-ga', number: '8.4', title: '在 WebGPU 中计算 GA', summary: '设计 WGSL 数据结构、批量 sandwich 运算与可视化管线。', concepts: ['WGSL', 'compute shader', 'instancing'], lab: '真实 WGSL instancing 批量转子实验', status: 'ready', minutes: 38 },
-      { id: 'robotics', number: '8.5', title: '机器人学与骨骼动画', summary: '将 motors 用于正向运动学、逆运动学、skinning 与轨迹插值。', concepts: ['kinematics', 'skinning', 'optimization'], lab: '三连杆 motor IK', status: 'advanced', minutes: 40 },
-      { id: 'cameras-rays', number: '8.6', title: '相机、射线与相交', summary: '用 PGA/CGA 表达投影相机、射线构造和统一几何相交。', concepts: ['camera', 'ray', 'intersection'], lab: 'PGA 针孔相机', status: 'advanced', minutes: 36 },
-      { id: 'dynamics', number: '8.7', title: '刚体动力学与几何物理', summary: '用 bivector 表示角速度、动量与力矩，并让 motor 微分方程保持几何约束。', concepts: ['rigid body dynamics', 'momentum', 'wrench'], lab: '无约束刚体积分器', status: 'advanced', minutes: 40 },
+      { id: 'robotics', number: '8.5', title: '机器人学与骨骼动画', summary: '将 motors 用于正向运动学、逆运动学、skinning 与轨迹插值。', concepts: ['kinematics', 'skinning', 'optimization'], lab: '可拖动目标的三连杆 motor CCD IK', status: 'ready', minutes: 40 },
+      { id: 'cameras-rays', number: '8.6', title: '相机、射线与相交', summary: '用 PGA/CGA 表达投影相机、射线构造和统一几何相交。', concepts: ['camera', 'ray', 'intersection'], lab: '针孔相机射线与 round 相交分类', status: 'ready', minutes: 36 },
+      { id: 'dynamics', number: '8.7', title: '刚体动力学与几何物理', summary: '用 bivector 表示角速度、动量与力矩，并让 motor 微分方程保持几何约束。', concepts: ['rigid body dynamics', 'momentum', 'wrench'], lab: '自由刚体主轴稳定性与守恒量监视器', status: 'ready', minutes: 40 },
     ],
   },
 ];

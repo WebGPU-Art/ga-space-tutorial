@@ -5,6 +5,16 @@ import { InteractiveCanvas, type CanvasFrame } from './InteractiveCanvas';
 import { drawArrow2D as arrow, drawDarkGrid as plane, toRad as rad } from './drawing';
 import { LabFrame as Lab, Slider } from './LabChrome';
 
+export function RepresentationComparisonLab() {
+  const [rotation,setRotation]=useState(68),[vectorAngle,setVectorAngle]=useState(24),theta=rad(rotation),phi=rad(vectorAngle),v=[Math.cos(phi),Math.sin(phi)] as const,out=[Math.cos(phi+theta),Math.sin(phi+theta)] as const,c=Math.cos(theta/2),s=Math.sin(theta/2),lengthError=Math.abs(Math.hypot(...out)-Math.hypot(...v));
+  const draw=({ctx,width,height}:CanvasFrame)=>{plane(ctx,width,height,34);const centers=[[width*.18,height*.57],[width*.5,height*.57],[width*.82,height*.57]] as const,r=Math.min(width/3,height)*.25,titles=['matrix · components','quaternion · axis/half-angle','GA rotor · oriented plane'];centers.forEach((center,i)=>{ctx.beginPath();ctx.arc(center[0],center[1],r,0,Math.PI*2);ctx.strokeStyle='rgba(216,227,224,.18)';ctx.stroke();arrow(ctx,center[0],center[1],center[0]+v[0]*r*.72,center[1]-v[1]*r*.72,'rgba(239,189,85,.55)','v',true);arrow(ctx,center[0],center[1],center[0]+out[0]*r*.72,center[1]-out[1]*r*.72,i===0?'#62a8e5':i===1?'#4bdab0':'#b69bf2','v′');ctx.fillStyle='#91a3a0';ctx.font='10px ui-monospace, monospace';ctx.fillText(titles[i],center[0]-r,center[1]-r-14);if(i===1){ctx.beginPath();ctx.arc(center[0],center[1],r*.42,0,-theta/2,theta>0);ctx.strokeStyle='#4bdab0';ctx.stroke();ctx.fillText('θ/2',center[0]+9,center[1]-18);}if(i===2){ctx.fillStyle='rgba(182,155,242,.1)';ctx.beginPath();ctx.arc(center[0],center[1],r*.5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#b69bf2';ctx.fillText('e₁₂',center[0]-10,center[1]+5);}});};
+  return <Lab title="三套坐标结构不同，但它们必须给出同一个旋转后向量" tag="LAB · REPRESENTATION AUDIT" metrics={[["θ",`${rotation}°`],["v′",`(${out[0].toFixed(3)}, ${out[1].toFixed(3)})`],["length error",lengthError.toExponential(1)]]}>
+    <InteractiveCanvas draw={draw} dependencies={[rotation,vectorAngle]} label="比较矩阵、四元数和几何代数转子对同一二维向量的旋转" />
+    <div className="lab-controls"><Slider label="旋转 θ" value={rotation} min={-180} max={180} suffix="°" onChange={setRotation}/><Slider label="输入向量方向" value={vectorAngle} min={-180} max={180} suffix="°" onChange={setVectorAngle}/></div>
+    <div className="quaternion-readout"><code>matrix: [[{Math.cos(theta).toFixed(2)}, {(-Math.sin(theta)).toFixed(2)}], [{Math.sin(theta).toFixed(2)}, {Math.cos(theta).toFixed(2)}]]</code><code>quaternion: q={c.toFixed(3)}+k{s.toFixed(3)} &nbsp;·&nbsp; rotor: R={c.toFixed(3)}−e₁₂{s.toFixed(3)}</code></div>
+  </Lab>;
+}
+
 export function ComplexRotationLab() {
   const [rotation, setRotation] = useState(55);
   const [scale, setScale] = useState(1);

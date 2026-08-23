@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { InteractiveCanvas, type CanvasFrame } from './InteractiveCanvas';
-import { drawArrow2D, drawAxes3D, drawDarkGrid, drawProjectedArrow, rotateAroundAxis, rotateX, rotateY, toRad, type Vec3 } from './drawing';
+import { drawArrow2D, drawAxes3D, drawDarkGrid, drawProjectedArrow, projectIso, rotateAroundAxis, rotateX, rotateY, toRad, type Vec3 } from './drawing';
 import { LabFrame as Lab, Slider } from './LabChrome';
 
 export function QuaternionAnatomyLab() {
@@ -88,6 +88,16 @@ export function DoubleCoverLab() {
   return <Lab title="姿态转一圈，四元数只走半圈" tag="LAB · DOUBLE COVER" metrics={[["physical", `${angle % 360}°`], ["q", `(${qw.toFixed(2)}, ${qv.toFixed(2)})`], ["state", stage]]}>
     <InteractiveCanvas draw={draw} dependencies={[angle]} label="SO(3) 与 Spin(3) 双覆盖的 720 度路径实验" />
     <div className="lab-controls one-slider"><Slider label="连续转动 θ" value={angle} min={0} max={720} suffix="°" onChange={setAngle} /></div>
+  </Lab>;
+}
+
+export function QuaternionGABridgeLab(){
+  const [angle,setAngle]=useState(92),[azimuth,setAzimuth]=useState(38),[elevation,setElevation]=useState(27),az=toRad(azimuth),el=toRad(elevation),axis:Vec3=[Math.cos(el)*Math.cos(az),Math.cos(el)*Math.sin(az),Math.sin(el)],half=toRad(angle)/2,weight=Math.sin(half),bivector:Vec3=[-axis[0]*weight,-axis[1]*weight,-axis[2]*weight];
+  const draw=({ctx,width,height}:CanvasFrame)=>{drawDarkGrid(ctx,width,height,34);const left:[number,number]=[width*.28,height*.55],right:[number,number]=[width*.73,height*.55],scale=Math.min(width,height)*.22;drawAxes3D(ctx,left,scale*.75);drawAxes3D(ctx,right,scale*.75);drawProjectedArrow(ctx,axis,left,scale,'#4bdab0','n̂ / Im(q)');const ref:Vec3=Math.abs(axis[2])<.85?[0,0,1]:[0,1,0],u0:Vec3=[axis[1]*ref[2]-axis[2]*ref[1],axis[2]*ref[0]-axis[0]*ref[2],axis[0]*ref[1]-axis[1]*ref[0]],un=Math.hypot(...u0),u:Vec3=[u0[0]/un,u0[1]/un,u0[2]/un],v:Vec3=[axis[1]*u[2]-axis[2]*u[1],axis[2]*u[0]-axis[0]*u[2],axis[0]*u[1]-axis[1]*u[0]];ctx.beginPath();for(let i=0;i<=48;i++){const t=i/48*Math.PI*2,p=projectIso([u[0]*Math.cos(t)+v[0]*Math.sin(t),u[1]*Math.cos(t)+v[1]*Math.sin(t),u[2]*Math.cos(t)+v[2]*Math.sin(t)],right[0],right[1],scale*.9);i?ctx.lineTo(...p):ctx.moveTo(...p);}ctx.closePath();ctx.fillStyle='rgba(182,155,242,.15)';ctx.fill();ctx.strokeStyle='#b69bf2';ctx.stroke();drawProjectedArrow(ctx,axis,right,scale,'rgba(239,189,85,.46)','dual axis',true);ctx.fillStyle='#91a3a0';ctx.font='10px ui-monospace, monospace';ctx.fillText('quaternion: rotation encoded by axis',left[0]-scale,left[1]-scale-18);ctx.fillText('GA: rotation encoded by oriented plane',right[0]-scale,right[1]-scale-18);};
+  return <Lab title="三维中轴与正交平面可以对偶；GA 选择可推广到高维的平面作为生成元" tag="LAB · ℍ ≅ Cl⁺(3,0)" metrics={[["half-angle",`${(angle/2).toFixed(1)}°`],["|Im q|",Math.abs(weight).toFixed(3)],["B̂²","−1"]]}>
+    <InteractiveCanvas draw={draw} dependencies={[angle,azimuth,elevation]} label="比较四元数虚轴与几何代数双向量旋转平面的对偶关系" />
+    <div className="lab-controls"><Slider label="旋转角 θ" value={angle} min={0} max={360} suffix="°" onChange={setAngle}/><Slider label="轴方位 φ" value={azimuth} min={-180} max={180} suffix="°" onChange={setAzimuth}/><Slider label="轴仰角 λ" value={elevation} min={-85} max={85} suffix="°" onChange={setElevation}/></div>
+    <div className="quaternion-readout"><code>Im(q)=sin(θ/2)({axis[0].toFixed(2)}i {axis[1]<0?'−':'+'} {Math.abs(axis[1]).toFixed(2)}j {axis[2]<0?'−':'+'} {Math.abs(axis[2]).toFixed(2)}k)</code><code>B part={bivector[0].toFixed(2)}e₂₃ {bivector[1]<0?'−':'+'} {Math.abs(bivector[1]).toFixed(2)}e₃₁ {bivector[2]<0?'−':'+'} {Math.abs(bivector[2]).toFixed(2)}e₁₂</code></div>
   </Lab>;
 }
 

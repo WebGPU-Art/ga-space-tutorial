@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
+import { RepresentationComparisonLab } from './components/labs/FoundationLabs';
+import { QuaternionGABridgeLab } from './components/labs/QuaternionConceptLabs';
 import { ComplexRotationLesson, CoordinatesLesson, DotProductLesson, OrientationLesson } from './components/lessons/FoundationLessons';
 import { AlgebraAtlasLesson, BladeFactorizationLesson } from './components/lessons/AdvancedCoreLessons';
 import { BladesGradesLesson, ContractionsLesson, DualityLesson, GeometricProductLesson, InvolutionsLesson, MeetJoinLesson, MetricSignatureLesson, OuterProductLesson, OutermorphismLesson, ProjectionLesson } from './components/lessons/GACoreLessons';
@@ -12,7 +14,7 @@ import { HomogeneousModelLesson, MotorsLesson, PGA2DLesson, PGAIncidenceLesson, 
 import { CGAEuclideanMotionsLesson, CGAExtractionLesson, CGAIntersectionsLesson, ConformalEmbeddingLesson, ConformalOperatorsLesson, NonEuclideanCGALesson, RoundsFlatsLesson } from './components/lessons/CGALessons';
 import { ElectromagneticBivectorLesson, LorentzBoostLesson, MinkowskiMetricLesson, SpacetimeSpinorLesson, SpacetimeSplitLesson } from './components/lessons/SpacetimeLessons';
 import { AutomaticDifferentiationLesson, DifferentialGeometryLesson, MultivectorDerivativeLesson, VectorCalculusLesson } from './components/lessons/CalculusLessons';
-import { DataLayoutLesson, NumericalValidationLesson, ProductTablesLesson, WebGPUGALesson } from './components/lessons/PracticeLessons';
+import { CamerasRaysLesson, DataLayoutLesson, DynamicsLesson, NumericalValidationLesson, ProductTablesLesson, RoboticsLesson, WebGPUGALesson } from './components/lessons/PracticeLessons';
 import { BivectorExpLesson, DoubleReflectionLesson, LieAlgebraLesson, NDRotationLesson, PinSpinLesson, ReflectionLesson, RotorInterpolationLesson, RotorSandwichLesson } from './components/lessons/TransformationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
@@ -146,6 +148,9 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'product-tables' ? <ProductTablesLesson />
       : lesson.id === 'numerical-validation' ? <NumericalValidationLesson />
       : lesson.id === 'webgpu-ga' ? <WebGPUGALesson />
+      : lesson.id === 'robotics' ? <RoboticsLesson />
+      : lesson.id === 'cameras-rays' ? <CamerasRaysLesson />
+      : lesson.id === 'dynamics' ? <DynamicsLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">
@@ -160,6 +165,7 @@ function WhyGALesson() {
     <section className="prose-block"><span>01 · MOTIVATION</span><h2>同一种旋转，为什么需要三套语言？</h2><p>传统三维图形学常同时使用向量描述方向、矩阵描述线性变换、四元数描述姿态，再为直线、平面和刚体运动引入额外数据结构。问题并不在于它们不能工作，而在于几何关系被分散到了不同表示与转换规则里。</p><p>几何代数尝试反过来：先让<span>方向、平面、体积和变换</span>成为同一种代数中的元素，再让乘法本身携带几何意义。</p></section>
     <section className="comparison-table"><div><span>传统工具</span><span>主要对象</span><span>常见断点</span></div><div><b>向量 + 叉积</b><p>方向、法向量</p><p>叉积局限于三维，平面被伪装成法向量</p></div><div><b>矩阵</b><p>线性变换</p><p>参数多，几何生成元不直观</p></div><div><b>四元数</b><p>三维旋转</p><p>难以直接作用于线、面与更高维对象</p></div><div className="highlight"><b>几何代数</b><p>对象 + 变换</p><p>同一乘法、同一夹心形式、可推广到 n 维</p></div></section>
     <figure className="equation-card large"><code>geometric product = metric information + oriented subspace</code><figcaption>核心问题不是“换一种符号”，而是让表示与几何结构保持一致。</figcaption></figure>
+    <RepresentationComparisonLab />
     <section className="checkpoint"><span>本课检查点</span><h3>学完后，你应该能回答</h3><ul><li>为什么双向量比法向量更直接地表示旋转平面？</li><li>“坐标无关”不等于“不使用坐标”，两者差别是什么？</li><li>为什么一个通用的 sandwich 变换形式值得追求？</li></ul></section>
   </div>;
 }
@@ -183,6 +189,7 @@ function QuaternionBridgeLesson() {
       <div><span>QUATERNION</span><b>k</b><p>k² = −1</p></div><div><span>Cl⁺(3,0)</span><b>−e₁₂</b><p>xy 旋转平面</p></div>
     </div>
     <figure className="equation-card large"><code>ℍ ≅ Cl⁺(3,0) = span&#123;1, e₂₃, e₃₁, e₁₂&#125;</code><figcaption>同构意味着乘法结构完全对应；四元数不是被“近似”为 GA，而是三维欧氏 GA 偶子代数的一种基表示。</figcaption></figure>
+    <QuaternionGABridgeLab />
     <section className="prose-block"><span>02 · FROM AXIS TO PLANE</span><h2>旋转轴只是三维里的对偶说法</h2><p>在三维中，单位轴 <i>n̂</i> 与垂直于它的旋转平面可以通过伪标量 <i>I = e₁₂₃</i> 互相转换：<i>B = I n̂</i>。四元数把旋转编码成“轴 + 半角”；转子则直接写成“平面 + 半角”。后者不依赖三维特有的轴—平面对偶，因此可以自然推广到更高维。</p></section>
     <div className="formula-bridge"><div><span>四元数</span><code>q = cos(θ/2) + n̂ sin(θ/2)</code><code>v′ = qvq⁻¹</code></div><i>≅</i><div><span>几何代数转子</span><code>R = exp(−Bθ/2)</code><code>v′ = RvR̃</code></div></div>
     <section className="checkpoint"><span>本课检查点</span><h3>这一桥梁解决三个疑问</h3><ul><li>四元数乘法为什么会自然地产生旋转复合？因为双向量本来就是旋转的生成元。</li><li>为什么要使用半角？因为 rotor 通过左右两次乘法完成夹心作用。</li><li>为什么 GA 能推广到高维？因为它用旋转平面而非三维特有的旋转轴来参数化。</li></ul></section>

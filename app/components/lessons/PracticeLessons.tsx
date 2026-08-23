@@ -1,6 +1,6 @@
 'use client';
 
-import { DataLayoutLab, MultiplicationTableLab, NumericalValidationLab, WebGPURotorLab } from '../labs/PracticeLabs';
+import { CameraRayLab, DataLayoutLab, MultiplicationTableLab, NumericalValidationLab, RigidBodyDynamicsLab, RoboticsIKLab, WebGPURotorLab } from '../labs/PracticeLabs';
 
 export function DataLayoutLesson(){
   return <div className="lesson-body">
@@ -57,5 +57,49 @@ export function WebGPUGALesson(){
     <section className="prose-block compact"><span>03 · RENDER OR COMPUTE?</span><h2>直接参与绘制的数据可在 vertex stage 变换；复用结果则用 compute stage</h2><p>如果旋转结果只用于当前 draw，在 vertex shader 中即时 sandwich 可省去中间 buffer。若结果要参与碰撞、归约、多个 pass 或回读，compute pipeline 将输出写入 storage buffer 更合适。选择取决于数据生命周期，不是“compute 一定更快”。</p><p>WebGPU 主流数值路径是 f32；部署前应使用上一课的 property suite 比较 CPU 与 GPU lane，并记录设备限制。对于小批量，pipeline 与 command submission 开销可能超过并行收益。</p></section>
     <section className="definition-callout"><span>渐进增强</span><p>WebGPU 不可用时，教程仍保留 Canvas 坐标、公式和控制器；但批量亮色点阵只在成功获得 GPU adapter 后出现。产品代码应把 capability detection 与数学结果验证分开处理。</p></section>
     <section className="checkpoint"><span>实验任务</span><h3>区分数学工作量、带宽与 draw 开销</h3><ul><li>增大 grid，确认 draw call 保持 1，而 shader invocation 按 N² 增长。</li><li>把角度调到 180°，用 rotor 半角系数解释为何点阵整体取反。</li><li>设计 storage-buffer 版本：列出输入 point stride、rotor uniform 与输出 buffer 各自需要的 WGSL 类型。</li></ul></section>
+  </div>;
+}
+
+export function RoboticsLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · A KINEMATIC CHAIN IS A PRODUCT OF LOCAL MOTORS</span><h2>每个关节只描述相邻 frame 的运动；连乘得到 end effector pose</h2><p>旋转关节、平移关节和固定 link offset 都可写成 PGA/CGA motor。若 <i>Mₖ₋₁,ₖ</i> 把第 k 个局部 frame 映到父 frame，基座到末端的 motor 是有序乘积。非交换性意味着父子顺序不能随意重排，也不能把“绕局部轴”与“绕世界轴”混为一谈。</p><p>motor 同时携带姿态与位置，因此同一个 sandwich 可作用于末端点、工具轴、碰撞线和平面。forward kinematics 的输出不是只给 xyz，而是一整个可继续组合的刚体 frame。</p></section>
+    <figure className="equation-card large"><code>M₀ₙ(q)=M₀₁(q₁)M₁₂(q₂)…Mₙ₋₁,ₙ(qₙ), &nbsp; Xworld=M₀ₙXlocalM̃₀ₙ</code><figcaption>本页实验是二维 PGA 截面；三维 serial chain 使用同样的 motor 乘积结构。</figcaption></figure>
+    <RoboticsIKLab />
+    <section className="derivation-steps"><article><span>forward</span><h3>由关节量求末端</h3><code>q ↦ M₀ₙ(q)</code><p>每个局部变换只依赖少量关节参数，适合缓存与递归更新。</p></article><article><span>error</span><h3>比较当前 pose 与目标</h3><code>E=Mtarget M̃current</code><p>log(E) 给出 twist/bivector 误差，比直接减矩阵更接近群结构。</p></article><article><span>update</span><h3>把误差分配给关节</h3><code>δq≈J⁺ ξ</code><p>Jacobian、CCD 或解析子问题都可用；约束与奇异性仍需显式处理。</p></article></section>
+    <section className="prose-block compact"><span>02 · CCD IS A GEOMETRIC LOCAL SOLVER</span><h2>从末端向基座逐关节旋转，让 end vector 对准 target vector</h2><p>实验在每个关节 J 计算当前末端向量 E−J 与目标向量 T−J 的有向夹角，并更新该局部 rotor。一次从 tip 到 base 的 sweep 不保证精确收敛，多次迭代逐步减小位置误差。目标超出 workspace 时，算法只能把链条拉到边界。</p></section>
+    <figure className="equation-card"><code>Δθⱼ=atan2((E−J)∧(T−J),(E−J)·(T−J))</code><figcaption>二维 bivector 只有一个方向；三维关节还必须把误差投影到允许的旋转轴/平面。</figcaption></figure>
+    <section className="prose-block compact"><span>03 · JACOBIANS COME FROM THE SAME DIFFERENTIATION PIPELINE</span><h2>把关节参数 seed 成 dual numbers，可直接得到末端 twist 的 Jacobian 列</h2><p>对 qⱼ 的 tangent seed 设为 1、其余为 0，forward AD 穿过 motor 指数、乘积与 sandwich 后得到第 j 列。这样解析公式与程序实现共享同一条代码路径；仍应使用 8.3 的 property tests 检查 finite difference、AD 与 Lie-algebra 误差是否一致。</p></section>
+    <section className="prose-block compact"><span>04 · SKELETAL SKINNING BLENDS TRANSFORMS, THEN REPROJECTS</span><h2>motor 与 dual quaternion skinning 避免线性矩阵混合造成的部分体积塌缩</h2><p>每个 vertex 先由 inverse bind motor 放入骨骼局部空间，再由当前 bone motor 带回；多个骨骼影响需要权重混合。直接加 motors 前必须统一双覆盖符号，并把结果重新归一化。简单 normalized blend 快而非严格 geodesic；高质量需求可使用 motor log/exp 或分层插值。</p></section>
+    <div className="sign-table"><div><span>FK</span><b>ordered motor product</b><p>确定、快速；从关节量得到完整 pose。</p></div><div><span>IK</span><b>solve pose error</b><p>可能多解、无解或奇异；需要 limits 与目标优先级。</p></div><div><span>SKINNING</span><b>weighted motors</b><p>需 sign alignment 与 normalization；权重通常不是几何量。</p></div></div>
+    <section className="checkpoint"><span>实验任务</span><h3>区分收敛、可达与唯一</h3><ul><li>在可达区域拖动目标，改变 CCD passes，比较迭代次数与误差。</li><li>把目标移到 workspace 外，说明误差不为零不是求解器 bug。</li><li>寻找同一目标的另一种 elbow 构型，解释初始姿态为何决定收敛到哪一个解。</li></ul></section>
+  </div>;
+}
+
+export function CamerasRaysLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · A PIXEL DEFINES A LINE THROUGH THE CAMERA CENTER</span><h2>针孔相机把二维采样点提升为三维 projective ray</h2><p>设相机中心为 projective point C，像平面上的采样点为 Q。它们的 join 生成 carrier line <i>L=C∨Q</i>；在齐次模型中，有限点、无穷远方向和直线属于同一 incidence 代数。相机外参则由一个 motor 把 camera-frame 的 C、Q、L 整体送到世界坐标。</p><p>projective line 本身向两侧无限延伸，而渲染射线是有起点的半线。因此实现仍需保留参数 <i>X(t)=C+td, t≥0</i>，用 t 排除相机后方交点并选择最近命中。</p></section>
+    <figure className="equation-card large"><code>L=C∨Q, &nbsp;&nbsp; X(t)=C+t d, &nbsp; d=normalize(Q−C), &nbsp; t≥0</code><figcaption>不同 PGA primal/dual 约定会交换 join/meet 的具体积符号；“两点确定 carrier line”这一几何关系不变。</figcaption></figure>
+    <CameraRayLab />
+    <section className="derivation-steps"><article><span>generate</span><h3>像素 → camera ray</h3><code>Q=(u,v,f), L=C∨Q</code><p>先在 camera frame 构造，再用 camera motor 变换到世界。</p></article><article><span>intersect</span><h3>line 与 scene blade 做 meet</h3><code>H=L∨Π or L∩S</code><p>flat 通常给一个点，round 可能给 point pair。</p></article><article><span>classify</span><h3>筛选实数与正向参数</h3><code>real, t≥near, nearest</code><p>代数候选还需裁剪范围、遮挡和数值容差。</p></article></section>
+    <section className="prose-block compact"><span>02 · ROUNDS TURN QUADRATICS INTO GEOMETRIC INTERSECTIONS</span><h2>CGA 用 line–sphere meet 统一 miss、tangent 与两交点</h2><p>实验用二维圆作球的截面，并同时显示熟悉的二次判别式。Δ&lt;0 对应虚 point pair，Δ=0 是重合的切点，Δ&gt;0 给两个实交点。CGA 把这些情况保存在同一种 blade 类型中；提取阶段再读取虚实状态、位置与权重。</p></section>
+    <figure className="equation-card"><code>|C+td−O|²=r² ⇒ t²+bt+c=0, &nbsp; Δ=b²−4c</code><figcaption>当 Δ 接近零时，直接使用普通求根式可能发生相消；稳健 ray tracer 会采用稳定根公式并设置尺度相关 tolerance。</figcaption></figure>
+    <section className="prose-block compact"><span>03 · CAMERA GEOMETRY IS MORE THAN A RAY FORMULA</span><h2>frustum planes、焦平面和 reflection 都能保持为可变换对象</h2><p>PGA 可用 planes 的 meet 构造 frustum edges，用 incidence 测试完成裁剪；CGA 可让 ray 与 spheres、circles 和更一般 rounds 相交。命中点的 tangent plane 可由对象导数或极性提取，再用一次 reflection versor 得到反射 ray。统一表示的价值在于 camera、scene 与结果都接受相同 motor。</p></section>
+    <div className="sign-table"><div><span>LINE</span><b>carrier geometry</b><p>没有起点和方向范围；适合 incidence 与 projective construction。</p></div><div><span>RAY</span><b>line + t interval</b><p>渲染语义；通常 t∈[near,far]。</p></div><div><span>HIT RECORD</span><b>point + normal + t</b><p>代数 meet 之后的工程数据；用于排序、材质和二次射线。</p></div></div>
+    <section className="checkpoint"><span>实验任务</span><h3>不要把 carrier line 当成最终 hit</h3><ul><li>拖动 sensor sample，使判别式从正经过零变负，比较三种 blade 分类。</li><li>扩大圆直到相机位于内部，说明为何只有一个正根仍可构成有效 exit hit。</li><li>列出从相机坐标 ray 到世界坐标 hit 需要 motor 作用的对象。</li></ul></section>
+  </div>;
+}
+
+export function DynamicsLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · VELOCITY LIVES IN A PLANE; INERTIA MAPS IT TO MOMENTUM</span><h2>angular velocity 与 angular momentum 都是 bivectors，但通常不平行</h2><p>三维传统记号把 ω 与 L 对偶成轴向量；GA 直接用旋转平面的 bivector Ω 与动量 bivector L。刚体质量分布定义线性 inertia map <i>𝓘</i>，满足 <i>L=𝓘(Ω)</i>。在 principal bivector basis 中它是对角的，但三个主惯量通常不同。</p><p>因此无外力矩时，世界 frame 的 L 固定，body frame 中的 Ω 与 L 却会相对移动。只有绕 principal axis 的纯旋转才让二者平行；这也是自由刚体出现 precession 与中间轴不稳定的根源。</p></section>
+    <figure className="equation-card large"><code>L=𝓘(Ω), &nbsp;&nbsp; dLworld/dt=Texternal, &nbsp;&nbsp; E=½ ω·L</code><figcaption>能量式用三维对偶向量分量书写以避免 bivector inner-product 的 convention 符号；几何对象仍是 Ω 与 L 两个定向平面。</figcaption></figure>
+    <RigidBodyDynamicsLab />
+    <section className="derivation-steps"><article><span>kinematics</span><h3>Ω 更新 rotor</h3><code>Ṙ=½Rωbody</code><p>若用 world bivector 左乘，公式和符号相应改变；必须固定 frame 约定。</p></article><article><span>constitutive map</span><h3>质量分布产生 L</h3><code>L=𝓘(Ω)</code><p>principal frame 中只需三个正主惯量。</p></article><article><span>dynamics</span><h3>torque 改变 momentum</h3><code>L̇+Ω×L=T</code><p>body-frame 方程包含 commutator transport 项。</p></article></section>
+    <section className="prose-block compact"><span>02 · THE EULER TOP EXPOSES THE GEOMETRY</span><h2>最小与最大主惯量轴稳定，中间轴对微小扰动不稳定</h2><p>实验设置 <i>I₁&lt;I₂&lt;I₃</i>，给主轴自旋加入小扰动，并积分 torque-free Euler equations。绕 I₁ 或 I₃ 的扰动保持有界；绕 I₂ 时 body frame 会周期性翻转，而蓝色世界角动量方向保持近似固定。这不是积分器制造的错觉，可由能量椭球与角动量球的交线解释。</p></section>
+    <figure className="equation-card"><code>I₁ω̇₁=(I₂−I₃)ω₂ω₃, &nbsp; I₂ω̇₂=(I₃−I₁)ω₃ω₁, &nbsp; I₃ω̇₃=(I₁−I₂)ω₁ω₂</code><figcaption>画布以 RK4 积分 body ω，并用增量 rotor 更新姿态；能量和 |L| 漂移实时显示。</figcaption></figure>
+    <section className="prose-block compact"><span>03 · PGA COMBINES LINEAR AND ANGULAR DYNAMICS</span><h2>twist、momentum 与 wrench 把作用线和力矩一起编码</h2><p>在 3D PGA 中，velocity bivector 的三条 Euclidean bivector lanes 表示角速度，三条 ideal bivector lanes 表示线速度；一个 motor 微分方程同时更新旋转与平移。对偶的 momentum/wrench 元素可同时携带力、力矩及其作用线，使换 frame 仍由 sandwich/adjoint 完成。</p><p>这是一条高级路线：惯性算子在完整 twist space 中不再只是三个主惯量，约束、接触和关节力也需要解线性或互补系统。本课只建立对象地图，不把经典力学细节压缩成一句“GA 自动解决动力学”。</p></section>
+    <section className="prose-block compact"><span>04 · INTEGRATE ON THE GROUP</span><h2>先更新 Lie algebra 速度，再通过 exponential/incremental rotor 保持姿态约束</h2><p>直接 Euler 更新 rotor coefficients 会离开 <i>RR̃=1</i>。更稳健的做法是由当前 Ω 构造小增量 rotor，再相乘并按需归一化；高精度场景使用 Lie-group variational integrator 或守恒积分器。无论选择哪一种，都应监控能量、momentum、motor norm 与 constraint residual。</p></section>
+    <div className="sign-table"><div><span>STATE</span><b>M, Ω or twist</b><p>pose 在群上，速度在对应 bivector Lie algebra 中。</p></div><div><span>INERTIA</span><b>𝓘: Ω↦L</b><p>不是普通标量乘法；由质量分布和 frame 决定。</p></div><div><span>FORCING</span><b>wrench / torque</b><p>改变 momentum；约束力应与允许虚位移相容。</p></div></div>
+    <section className="checkpoint"><span>实验任务</span><h3>用守恒量审查动画</h3><ul><li>比较三个主轴 preset，记录哪一个出现大幅 body-frame 翻转。</li><li>改变 I₂ 接近 I₁ 或 I₃，观察中间轴不稳定的时间尺度如何变化。</li><li>若增大积分步长，预测 energy drift、|L| drift 与 rotor norm 中哪一项最先暴露问题。</li></ul></section>
   </div>;
 }
