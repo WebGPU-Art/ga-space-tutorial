@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { InteractiveCanvas, type CanvasFrame } from './InteractiveCanvas';
+import { Slider } from './LabChrome';
 
 const toRad = (degrees: number) => degrees * Math.PI / 180;
 
@@ -48,15 +49,11 @@ export function QuaternionRotationLab() {
       <div className="lab-readout"><span>ANGLE</span><b>{String(angle).padStart(3, '0')}°</b><small>axis · n̂</small></div>
     </div>
     <div className="lab-controls">
-      <Slider label="旋转角 θ" value={angle} min={0} max={360} onChange={setAngle} />
-      <Slider label="观察倾角" value={tilt} min={-35} max={65} onChange={setTilt} />
-      <Slider label="旋转轴方位 φ" value={azimuth} min={-180} max={180} onChange={setAzimuth} />
-      <Slider label="旋转轴仰角 λ" value={elevation} min={-85} max={85} onChange={setElevation} />
+      <Slider label="旋转角 θ" value={angle} min={0} max={360} suffix="°" onChange={setAngle} />
+      <Slider label="观察倾角" value={tilt} min={-35} max={65} suffix="°" onChange={setTilt} />
+      <Slider label="旋转轴方位 φ" value={azimuth} min={-180} max={180} suffix="°" onChange={setAzimuth} />
+      <Slider label="旋转轴仰角 λ" value={elevation} min={-85} max={85} suffix="°" onChange={setElevation} />
     </div>
     <figure className="equation-card"><code>q = {quaternion.w.toFixed(3)} + ({quaternion.x.toFixed(3)})i + ({quaternion.y.toFixed(3)})j + ({quaternion.z.toFixed(3)})k</code><figcaption>q = cos(θ/2) + n̂ sin(θ/2) · 紫色虚线为单位旋转轴</figcaption></figure>
   </section>;
-}
-
-function Slider({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) {
-  return <label><span>{label}</span><output>{value}°</output><input aria-label={label} type="range" min={min} max={max} value={value} onChange={event => onChange(Number(event.target.value))} /></label>;
 }

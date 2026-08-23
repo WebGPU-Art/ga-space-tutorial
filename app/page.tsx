@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
 import { ComplexRotationLesson, CoordinatesLesson, DotProductLesson, OrientationLesson } from './components/lessons/FoundationLessons';
+import { MetricSignatureLesson, OuterProductLesson } from './components/lessons/GACoreLessons';
+import { QuaternionNumericsLesson, SlerpLesson } from './components/lessons/QuaternionAdvancedLessons';
 import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
@@ -85,7 +87,11 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'quaternion-lab' ? <QuaternionLesson />
       : lesson.id === 'composition' ? <CompositionLesson />
       : lesson.id === 'double-cover' ? <DoubleCoverLesson />
+      : lesson.id === 'slerp' ? <SlerpLesson />
       : lesson.id === 'quaternion-to-ga' ? <QuaternionBridgeLesson />
+      : lesson.id === 'quaternion-numerics' ? <QuaternionNumericsLesson />
+      : lesson.id === 'metric-signature' ? <MetricSignatureLesson />
+      : lesson.id === 'outer-product' ? <OuterProductLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">

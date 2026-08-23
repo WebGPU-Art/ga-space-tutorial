@@ -59,3 +59,15 @@ export function rotateAroundAxis(vector: Vec3, axis: Vec3, angle: number): Vec3 
     z * c + (nx * y - ny * x) * s + nz * dot * (1 - c),
   ];
 }
+
+export function drawProjectedArrow(ctx: CanvasRenderingContext2D, vector: Vec3, center: readonly [number, number], scale: number, color: string, label: string, dashed = false) {
+  const origin = projectIso([0, 0, 0], center[0], center[1], scale);
+  const end = projectIso(vector, center[0], center[1], scale);
+  drawArrow2D(ctx, ...origin, ...end, color, label, dashed);
+}
+
+export function drawAxes3D(ctx: CanvasRenderingContext2D, center: readonly [number, number], scale: number) {
+  drawProjectedArrow(ctx, [1.1, 0, 0], center, scale, 'rgba(239,189,85,.58)', 'x');
+  drawProjectedArrow(ctx, [0, 1.1, 0], center, scale, 'rgba(75,218,176,.58)', 'y');
+  drawProjectedArrow(ctx, [0, 0, 1.1], center, scale, 'rgba(182,155,242,.6)', 'z');
+}

@@ -3,10 +3,7 @@
 import { useState } from 'react';
 import { InteractiveCanvas, type CanvasFrame } from './InteractiveCanvas';
 import { drawArrow2D as arrow, drawDarkGrid as plane, toRad as rad } from './drawing';
-
-function Slider({ label, value, min, max, step = 1, suffix = '°', onChange }: { label: string; value: number; min: number; max: number; step?: number; suffix?: string; onChange: (value: number) => void }) {
-  return <label><span>{label}</span><output>{value}{suffix}</output><input aria-label={label} type="range" min={min} max={max} step={step} value={value} onChange={event => onChange(Number(event.target.value))} /></label>;
-}
+import { LabFrame as Lab, Slider } from './LabChrome';
 
 export function ComplexRotationLab() {
   const [rotation, setRotation] = useState(55);
@@ -26,7 +23,7 @@ export function ComplexRotationLab() {
   const rx = zx * wx - zy * wy, ry = zx * wy + zy * wx;
   return <Lab title="复数乘法 = 缩放 + 旋转" tag="LAB · COMPLEX PLANE" metrics={[['arg(w)', `${rotation}°`], ['|w|', scale.toFixed(2)], ['wz', `${rx.toFixed(2)} + ${ry.toFixed(2)}i`]]}>
     <InteractiveCanvas draw={draw} dependencies={[rotation, scale]} label="复数乘法旋转实验" />
-    <div className="lab-controls"><Slider label="乘数相角" value={rotation} min={-180} max={180} onChange={setRotation} /><Slider label="乘数模长" value={scale} min={.4} max={1.8} step={.05} suffix="" onChange={setScale} /></div>
+    <div className="lab-controls"><Slider label="乘数相角" value={rotation} min={-180} max={180} suffix="°" onChange={setRotation} /><Slider label="乘数模长" value={scale} min={.4} max={1.8} step={.05} onChange={setScale} /></div>
   </Lab>;
 }
 
@@ -48,7 +45,7 @@ export function BasisChangeLab() {
   };
   return <Lab title="对象不动，坐标会变" tag="LAB · CHANGE OF BASIS" metrics={[['world v', '(1.35, 0.82)'], ['[v]ᵦ', `(${coordinates[0].toFixed(2)}, ${coordinates[1].toFixed(2)})`], ['det B', determinant.toFixed(2)]]}>
     <InteractiveCanvas draw={draw} dependencies={[rotation, shear]} label="基变换与向量坐标实验" />
-    <div className="lab-controls"><Slider label="基旋转" value={rotation} min={-80} max={80} onChange={setRotation} /><Slider label="基倾斜" value={shear} min={-.7} max={.7} step={.05} suffix="" onChange={setShear} /></div>
+    <div className="lab-controls"><Slider label="基旋转" value={rotation} min={-80} max={80} suffix="°" onChange={setRotation} /><Slider label="基倾斜" value={shear} min={-.7} max={.7} step={.05} onChange={setShear} /></div>
   </Lab>;
 }
 
@@ -66,7 +63,7 @@ export function DotProductLab() {
   };
   return <Lab title="点积测量对齐程度" tag="LAB · METRIC" metrics={[['a · b', dot.toFixed(3)], ['cos θ', Math.cos(rad(angle)).toFixed(3)], ['proj length', projection.toFixed(3)]]}>
     <InteractiveCanvas draw={draw} dependencies={[angle, lengthB]} label="点积、夹角与投影实验" />
-    <div className="lab-controls"><Slider label="夹角 θ" value={angle} min={0} max={180} onChange={setAngle} /><Slider label="|b|" value={lengthB} min={.4} max={1.7} step={.05} suffix="" onChange={setLengthB} /></div>
+    <div className="lab-controls"><Slider label="夹角 θ" value={angle} min={0} max={180} suffix="°" onChange={setAngle} /><Slider label="|b|" value={lengthB} min={.4} max={1.7} step={.05} onChange={setLengthB} /></div>
   </Lab>;
 }
 
@@ -84,10 +81,6 @@ export function OrientationLab() {
   };
   return <Lab title="镜像会翻转空间定向" tag="LAB · HANDEDNESS" metrics={[['det B', String(sign)], ['I′', mirrored ? '−I' : '+I'], ['handedness', mirrored ? 'left' : 'right']]}>
     <InteractiveCanvas draw={draw} dependencies={[mirrored, view]} label="坐标系定向与手性实验" />
-    <div className="lab-controls orientation-controls"><button className={!mirrored ? 'active' : ''} onClick={() => setMirrored(false)}>右手系 · det +1</button><button className={mirrored ? 'active danger' : ''} onClick={() => setMirrored(true)}>镜像后 · det −1</button><Slider label="观察角" value={view} min={-55} max={55} onChange={setView} /></div>
+    <div className="lab-controls orientation-controls"><button className={!mirrored ? 'active' : ''} onClick={() => setMirrored(false)}>右手系 · det +1</button><button className={mirrored ? 'active danger' : ''} onClick={() => setMirrored(true)}>镜像后 · det −1</button><Slider label="观察角" value={view} min={-55} max={55} suffix="°" onChange={setView} /></div>
   </Lab>;
-}
-
-function Lab({ title, tag, metrics, children }: { title: string; tag: string; metrics: [string, string][]; children: React.ReactNode }) {
-  return <section className="compact-lab"><div className="compact-lab-head"><div><span>{tag}</span><h3>{title}</h3></div><div className="lab-metrics">{metrics.map(([label, value]) => <span key={label}><small>{label}</small><b>{value}</b></span>)}</div></div><div className="compact-canvas">{children}</div></section>;
 }

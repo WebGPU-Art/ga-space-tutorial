@@ -2,37 +2,8 @@
 
 import { useState } from 'react';
 import { InteractiveCanvas, type CanvasFrame } from './InteractiveCanvas';
-import { drawArrow2D, drawDarkGrid, projectIso, rotateAroundAxis, rotateX, rotateY, toRad, type Vec3 } from './drawing';
-
-type SliderProps = {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step?: number;
-  suffix?: string;
-  onChange: (value: number) => void;
-};
-
-function Slider({ label, value, min, max, step = 1, suffix = '', onChange }: SliderProps) {
-  return <label><span>{label}</span><output>{value.toFixed(step < 1 ? 2 : 0)}{suffix}</output><input aria-label={label} type="range" min={min} max={max} step={step} value={value} onChange={event => onChange(Number(event.target.value))} /></label>;
-}
-
-function Lab({ title, tag, metrics, children }: { title: string; tag: string; metrics: [string, string][]; children: React.ReactNode }) {
-  return <section className="compact-lab"><div className="compact-lab-head"><div><span>{tag}</span><h3>{title}</h3></div><div className="lab-metrics">{metrics.map(([label, value]) => <span key={label}><small>{label}</small><b>{value}</b></span>)}</div></div><div className="compact-canvas">{children}</div></section>;
-}
-
-function drawProjectedArrow(ctx: CanvasRenderingContext2D, vector: Vec3, center: readonly [number, number], scale: number, color: string, label: string, dashed = false) {
-  const origin = projectIso([0, 0, 0], center[0], center[1], scale);
-  const end = projectIso(vector, center[0], center[1], scale);
-  drawArrow2D(ctx, ...origin, ...end, color, label, dashed);
-}
-
-function drawAxes(ctx: CanvasRenderingContext2D, center: readonly [number, number], scale: number) {
-  drawProjectedArrow(ctx, [1.1, 0, 0], center, scale, 'rgba(239,189,85,.58)', 'x');
-  drawProjectedArrow(ctx, [0, 1.1, 0], center, scale, 'rgba(75,218,176,.58)', 'y');
-  drawProjectedArrow(ctx, [0, 0, 1.1], center, scale, 'rgba(182,155,242,.6)', 'z');
-}
+import { drawArrow2D, drawAxes3D, drawDarkGrid, drawProjectedArrow, rotateAroundAxis, rotateX, rotateY, toRad, type Vec3 } from './drawing';
+import { LabFrame as Lab, Slider } from './LabChrome';
 
 export function QuaternionAnatomyLab() {
   const [w, setW] = useState(.72), [x, setX] = useState(.35), [y, setY] = useState(-.2), [z, setZ] = useState(.48);
@@ -45,7 +16,7 @@ export function QuaternionAnatomyLab() {
     const wx = split * .51 + Math.max(-1.5, Math.min(1.5, w)) * gauge * .62;
     drawArrow2D(ctx, split * .51, cy, wx, cy, '#efbd55', 'w');
     ctx.fillStyle = '#9ba9a8'; ctx.font = '10px ui-monospace, monospace'; ctx.fillText('scalar line', split * .28, cy + 34);
-    drawAxes(ctx, center, scale);
+    drawAxes3D(ctx, center, scale);
     drawProjectedArrow(ctx, [x, y, z], center, scale, '#4bdab0', 'Im(q)');
     ctx.fillStyle = '#93a4a5'; ctx.fillText('imaginary 3-space', center[0] - 52, height - 28);
   };
@@ -66,7 +37,7 @@ export function AxisAngleLab() {
     drawDarkGrid(ctx, width, height); const center = [width * .5, height * .53] as const, scale = Math.min(width, height) * .25;
     const glow = ctx.createRadialGradient(center[0], center[1], 5, center[0], center[1], scale * 1.5); glow.addColorStop(0, 'rgba(75,218,176,.13)'); glow.addColorStop(1, 'rgba(17,24,33,0)'); ctx.fillStyle = glow; ctx.fillRect(0, 0, width, height);
     ctx.beginPath(); ctx.ellipse(center[0], center[1], scale, scale * .52, 0, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(200,214,214,.22)'; ctx.stroke();
-    drawAxes(ctx, center, scale * .78);
+    drawAxes3D(ctx, center, scale * .78);
     drawProjectedArrow(ctx, [-axis[0] * 1.35, -axis[1] * 1.35, -axis[2] * 1.35], center, scale, 'rgba(182,155,242,.46)', '', true);
     drawProjectedArrow(ctx, [axis[0] * 1.35, axis[1] * 1.35, axis[2] * 1.35], center, scale, '#b69bf2', 'n̂', true);
     drawProjectedArrow(ctx, initial, center, scale, '#efbd55', 'v', true);
@@ -88,7 +59,7 @@ export function CompositionLab() {
   const draw = ({ ctx, width, height }: CanvasFrame) => {
     drawDarkGrid(ctx, width, height); const cy = height * .53, scale = Math.min(width * .16, height * .23), left = [width * .28, cy] as const, right = [width * .73, cy] as const;
     ctx.fillStyle = '#95a4a4'; ctx.font = '11px ui-monospace, monospace'; ctx.fillText('first X, then Y', left[0] - 54, 25); ctx.fillText('first Y, then X', right[0] - 54, 25);
-    for (const center of [left, right]) { drawAxes(ctx, center, scale * .72); drawProjectedArrow(ctx, source, center, scale, '#efbd55', 'v', true); }
+    for (const center of [left, right]) { drawAxes3D(ctx, center, scale * .72); drawProjectedArrow(ctx, source, center, scale, '#efbd55', 'v', true); }
     drawProjectedArrow(ctx, xy, left, scale, order === 'xy' ? '#4bdab0' : 'rgba(75,218,176,.62)', 'vXY');
     drawProjectedArrow(ctx, yx, right, scale, order === 'yx' ? '#b69bf2' : 'rgba(182,155,242,.62)', 'vYX');
     ctx.strokeStyle = 'rgba(200,213,212,.18)'; ctx.beginPath(); ctx.moveTo(width / 2, 20); ctx.lineTo(width / 2, height - 20); ctx.stroke();
