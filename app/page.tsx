@@ -10,7 +10,8 @@ import { QuaternionNumericsLesson, SlerpLesson } from './components/lessons/Quat
 import { AxisAngleLesson, CompositionLesson, DoubleCoverLesson, QuaternionAnatomyLesson } from './components/lessons/QuaternionLessons';
 import { HomogeneousModelLesson, MotorsLesson, PGA2DLesson, PGAIncidenceLesson, PGALines3DLesson, PGANormalizationLesson, PGAPrimitivesLesson, ScrewMotionLesson, TranslatorsLesson } from './components/lessons/PGALessons';
 import { CGAEuclideanMotionsLesson, CGAExtractionLesson, CGAIntersectionsLesson, ConformalEmbeddingLesson, ConformalOperatorsLesson, NonEuclideanCGALesson, RoundsFlatsLesson } from './components/lessons/CGALessons';
-import { LorentzBoostLesson, MinkowskiMetricLesson } from './components/lessons/SpacetimeLessons';
+import { ElectromagneticBivectorLesson, LorentzBoostLesson, MinkowskiMetricLesson, SpacetimeSpinorLesson, SpacetimeSplitLesson } from './components/lessons/SpacetimeLessons';
+import { MultivectorDerivativeLesson } from './components/lessons/CalculusLessons';
 import { BivectorExpLesson, DoubleReflectionLesson, LieAlgebraLesson, NDRotationLesson, PinSpinLesson, ReflectionLesson, RotorInterpolationLesson, RotorSandwichLesson } from './components/lessons/TransformationLessons';
 import { allLessons, auditFindings, modules, references, type Lesson } from './curriculum';
 
@@ -133,6 +134,10 @@ function LessonPage({ lesson, moduleTitle, onNext }: { lesson: Lesson; moduleTit
       : lesson.id === 'non-euclidean-cga' ? <NonEuclideanCGALesson />
       : lesson.id === 'minkowski-metric' ? <MinkowskiMetricLesson />
       : lesson.id === 'lorentz-boost' ? <LorentzBoostLesson />
+      : lesson.id === 'spacetime-split' ? <SpacetimeSplitLesson />
+      : lesson.id === 'spacetime-bivectors' ? <ElectromagneticBivectorLesson />
+      : lesson.id === 'spacetime-spinors' ? <SpacetimeSpinorLesson />
+      : lesson.id === 'multivector-derivative' ? <MultivectorDerivativeLesson />
       : <LessonBlueprint lesson={lesson} />}
 
     <nav className="lesson-pagination" aria-label="前后课程">

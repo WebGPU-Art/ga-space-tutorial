@@ -105,15 +105,15 @@ export const modules: Module[] = [
     lessons: [
       { id: 'minkowski-metric', number: '6.1', title: 'Minkowski 度量与事件', summary: '改变一个基向量的平方符号，空间旋转便延伸到时空几何。', concepts: ['event', 'proper time', 'signature'], lab: '可拖动事件的光锥与间隔分类', status: 'ready', minutes: 28 },
       { id: 'lorentz-boost', number: '6.2', title: 'Lorentz boost 是双曲旋转', summary: '用指数转子表达惯性系之间的 boost，并观察光锥保持不变。', concepts: ['rapidity', 'boost', 'hyperbolic rotor'], lab: 'rapidity、倾斜坐标轴与不变间隔', status: 'ready', minutes: 34 },
-      { id: 'spacetime-split', number: '6.3', title: '观察者与时空分解', summary: '选择一个时间方向，把同一时空量分解成观察者测得的时间与空间部分。', concepts: ['observer', 'spacetime split', 'relative vector'], lab: '切换观察者的空间切片', status: 'advanced', minutes: 32 },
-      { id: 'spacetime-bivectors', number: '6.4', title: '时空双向量与电磁场', summary: '把电场和磁场视为同一个时空双向量在不同观察者下的分解。', concepts: ['spacetime bivector', 'observer split', 'field'], lab: '观察者变换下的 E/B 混合', status: 'advanced', minutes: 36 },
-      { id: 'spacetime-spinors', number: '6.5', title: '时空 Spinor 与 Dirac 结构', summary: '从偶子代数角度理解时空旋量、相位和 Dirac 代数的几何来源。', concepts: ['spinor', 'Dirac algebra', 'phase'], lab: '旋量双覆盖示意', status: 'advanced', minutes: 38 },
+      { id: 'spacetime-split', number: '6.3', title: '观察者与时空分解', summary: '选择一个时间方向，把同一时空量分解成观察者测得的时间与空间部分。', concepts: ['observer', 'spacetime split', 'relative vector'], lab: '拖动事件并切换观察者的空间切片', status: 'ready', minutes: 32 },
+      { id: 'spacetime-bivectors', number: '6.4', title: '时空双向量与电磁场', summary: '把电场和磁场视为同一个时空双向量在不同观察者下的分解。', concepts: ['spacetime bivector', 'observer split', 'field'], lab: 'E/B 混合与两个 Lorentz 不变量', status: 'ready', minutes: 36 },
+      { id: 'spacetime-spinors', number: '6.5', title: '时空 Spinor 与 Dirac 结构', summary: '从偶子代数角度理解时空旋量、相位和 Dirac 代数的几何来源。', concepts: ['spinor', 'Dirac algebra', 'phase'], lab: 'spinor 的 360° 变号与 720° 闭合', status: 'ready', minutes: 38 },
     ],
   },
   {
     id: 'calculus', number: '07', title: '几何微积分与连续变化', subtitle: '让多向量随位置和时间变化', color: '#d58ec6',
     lessons: [
-      { id: 'multivector-derivative', number: '7.1', title: '多向量导数', summary: '把标量和向量微积分推广到多向量值函数，建立方向导数与梯度的 GA 形式。', concepts: ['vector derivative', 'directional derivative', 'multivector field'], lab: '多向量场的局部变化', status: 'advanced', minutes: 34 },
+      { id: 'multivector-derivative', number: '7.1', title: '多向量导数', summary: '把标量和向量微积分推广到多向量值函数，建立方向导数与梯度的 GA 形式。', concepts: ['vector derivative', 'directional derivative', 'multivector field'], lab: '逐 grade 检查多向量场的局部变化', status: 'ready', minutes: 34 },
       { id: 'ga-vector-calculus', number: '7.2', title: '散度、旋度与外导数', summary: '把 grad、div、curl 和 differential forms 放进统一的几何导数分解中。', concepts: ['divergence', 'curl', 'exterior derivative'], lab: '向量场分解可视化', status: 'advanced', minutes: 38 },
       { id: 'automatic-differentiation', number: '7.3', title: '自动微分与运动学', summary: '利用退化基与双数结构计算导数，并把结果用于姿态、motor 和约束系统。', concepts: ['dual number', 'automatic differentiation', 'Jacobian'], lab: 'motor 运动的自动微分', status: 'advanced', minutes: 34 },
       { id: 'differential-geometry', number: '7.4', title: '曲线、曲面与移动标架', summary: '用 rotor 描述 Frenet frame、曲面切空间和曲率，为流形上的 GA 建立入口。', concepts: ['moving frame', 'curvature', 'tangent space'], lab: '沿曲线运输标架', status: 'advanced', minutes: 38 },
