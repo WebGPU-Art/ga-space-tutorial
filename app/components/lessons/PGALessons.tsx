@@ -1,6 +1,7 @@
 'use client';
 
 import { HomogeneousEmbeddingLab, PGA2DMeetLab, PGAIncidenceMetricLab, PGANormalizationLab, PGAPrimitiveInspectorLab, TranslatorExponentialLab } from '../labs/PGALabs';
+import { MotorDecompositionLab, PluckerLineLab, ScrewMotionLab } from '../labs/PGAAdvancedLabs';
 
 export function PGA2DLesson(){
   return <div className="lesson-body">
@@ -86,5 +87,44 @@ export function TranslatorsLesson(){
     <section className="prose-block compact"><span>03 · TRANSLATORS FORM AN ABELIAN SUBGROUP</span><h2>平移生成元彼此交换，所以位移直接相加</h2><p>二维任意两个理想平移生成元 B₁、B₂ 的乘积为零，因此彼此交换。由此 <i>T(t₂)T(t₁)=T(t₁+t₂)</i>，平移顺序不会改变终点。下一课会把 translator 与有限 rotor 相乘得到 motor；此时旋转和平移一般不再交换。</p></section>
     <section className="definition-callout"><span>符号约定</span><p>有些资料使用 <b>X′=T̃XT</b> 或把点基写成 e₀₂ 而非 e₂₀，translator 指数的正负号会随之变化。实现时不要孤立抄写 T；应同时用一个已知点验证 sandwich 的实际位移方向。</p></section>
     <section className="checkpoint"><span>实验任务</span><h3>验证指数终止与结构保持</h3><ul><li>把路径参数 s 从 0 调到 1，确认轨迹对点、线和坐标框架都是直线。</li><li>令 t=(0,0)，确认 B=0、T=1，所有对象保持不动。</li><li>比较先平移 x 再平移 y 与相反顺序；预测为何它们相同，而下一课的旋转加平移不同。</li></ul></section>
+  </div>;
+}
+
+export function MotorsLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · ONE VERSOR FOR SE(3)</span><h2>motor 把姿态变换压缩为一个可乘、可求逆的几何对象</h2><p>三维 PGA 的偶子代数有 8 个基分量：1 个标量、6 个双向量和 1 个伪标量。满足 <i>M M̃=1</i> 的偶 versor 称为 motor；约束去掉多余自由度后，它正好描述刚体运动的 6 个自由度，并与单位双四元数同构。</p><p>点、线、平面不再各自调用不同的矩阵公式。只要它们属于同一 PGA，同一个主动 sandwich <i>X′=MXM̃</i> 就会保持关联、距离与角度。</p></section>
+    <figure className="equation-card large"><code>M M̃=1, &nbsp;&nbsp; X′=MXM̃, &nbsp;&nbsp; M∈Cl⁺(3,0,1)</code><figcaption>reverse 同时给出逆；复合 motor 仍是 motor。</figcaption></figure>
+    <MotorDecompositionLab />
+    <section className="derivation-steps"><article><span>rotation</span><h3>有限线生成 rotor</h3><code>R=exp(−θL/2)</code><p>规范化轴线满足 L²=−1。</p></article><article><span>translation</span><h3>理想线生成 translator</h3><code>T=exp(−B∞/2)=1−B∞/2</code><p>幂零生成元使指数精确终止。</p></article><article><span>rigid motion</span><h3>因子相乘成 motor</h3><code>M=TR</code><p>在右侧先作用 R，再沿世界坐标作用 T。</p></article></section>
+    <section className="prose-block compact"><span>02 · ORDER IS PART OF THE GEOMETRY</span><h2>TR 与 RT 一般不相等，因为旋转会改变平移方向</h2><p>采用 <i>X′=MXM̃</i> 时，最靠近 X 的因子先作用。<i>M=TR</i> 表示先绕原点旋转，再沿固定世界向量 t 平移；<i>M=RT</i> 则先平移，随后连同位移向量一起旋转。两者只在旋转为零、平移为零或 t 平行于旋转轴等特殊情形相同。</p></section>
+    <figure className="equation-card"><code>(TR)X(TR)̃=T(RXR̃)T̃ &nbsp;&nbsp;≠&nbsp;&nbsp; R(TXT̃)R̃=(RT)X(RT)̃</code><figcaption>乘法次序让 motor 能直接组成场景图、骨骼链与机器人运动链。</figcaption></figure>
+    <section className="prose-block compact"><span>03 · NORMALIZE THE REPRESENTATIVE</span><h2>浮点累乘会离开单位 motor 流形</h2><p>理论上单位 motor 的乘积仍满足 <i>MM̃=1</i>；数值计算中舍入误差会缓慢破坏约束。实时系统应定期规范化，或在 Lie 代数中积分后再用指数映回 motor。不要把 8 个系数当成相互独立的普通向量分量直接插值。</p></section>
+    <section className="checkpoint"><span>实验任务</span><h3>用因子顺序辨认坐标系</h3><ul><li>切换 TR 与 RT，确认原点终点分别为 t 与 R(t)。</li><li>令 t 只沿 z 轴，再绕 z 轴旋转；解释为何两种次序重合。</li><li>把 θ 调为 0，说明 motor 如何连续退化为 translator。</li></ul></section>
+  </div>;
+}
+
+export function PGALines3DLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · A LINE IS A SIMPLE 2-BLADE</span><h2>三维直线同时携带方向与相对原点的 moment</h2><p>在 dual 3D PGA 中，直线是两个平面的外积 <i>L=π₁∧π₂</i>，因此是 2-blade。选择基后，它的六个坐标可拆为方向 d 与 moment m。对线上的任意点 p，有 <i>m=p×d</i>；沿 d 移动 p 不改变叉积，所以 m 与具体选点无关。</p><p>若 d 已单位化，<i>p₀=d×m</i> 是直线上离原点最近的点。由叉积立刻得到 <i>d·m=0</i>，这不是可选条件，而是“六个数确实来自一条线”的约束。</p></section>
+    <figure className="equation-card large"><code>L=dₓe₂₃+dᵧe₃₁+d_ze₁₂+mₓe₀₁+mᵧe₀₂+m_ze₀₃, &nbsp; m=p×d</code><figcaption>分量符号随基次序和 primal/dual 约定变化；几何内容是方向、moment 与它们的正交约束。</figcaption></figure>
+    <PluckerLineLab />
+    <section className="derivation-steps"><article><span>direction</span><h3>d 决定理想交点</h3><code>d=(dₓ,dᵧ,d_z)</code><p>线与理想平面的交就是它的方向。</p></article><article><span>moment</span><h3>m 记录离原点的偏置</h3><code>m=p×d</code><p>它垂直于 p 和 d，大小等于离原点距离乘 ‖d‖。</p></article><article><span>simple</span><h3>Klein quadric 约束</h3><code>d·m=0 ⇔ L∧L=0</code><p>满足这一二次方程的射影点才表示一条线。</p></article></section>
+    <section className="prose-block compact"><span>02 · WHY SIX COORDINATES DESCRIBE FOUR DEGREES OF FREEDOM</span><h2>齐次尺度与简单性共同去掉两个自由度</h2><p>方向加 moment 看似有 6 个数；Plücker 坐标整体只定义到非零尺度，先减去一个自由度；二次约束 <i>d·m=0</i> 再减去一个，留下三维直线空间所需的 4 个自由度。这个射影二次曲面称为 Klein quadric。</p></section>
+    <div className="sign-table"><div><span>FINITE LINE</span><b>d≠0, d·m=0</b><p>可恢复有限支撑点与方向。</p></div><div><span>IDEAL LINE</span><b>d=0, m≠0</b><p>完全位于理想平面；需用 ideal norm 规范化。</p></div><div><span>NON-SIMPLE</span><b>d·m≠0</b><p>一般双向量，不是一条几何直线。</p></div></div>
+    <section className="prose-block compact"><span>03 · CONSTRUCTIONS PRESERVE SIMPLICITY</span><h2>由真实几何对象构造直线，比手工填写六元组更安全</h2><p>两平面 meet <i>π₁∧π₂</i> 或两点 join <i>P∨Q</i> 会自动产生 simple line。只有在优化、插值或外部数据输入时直接操作六个坐标，才需显式监控 Klein 约束并投影回合法集合。</p></section>
+    <section className="checkpoint"><span>实验任务</span><h3>让一条线离开 Klein quadric</h3><ul><li>在有限线模式移动最近点，确认 d·m 始终为 0。</li><li>切换 invalid 并增加沿 d 的 moment 分量，观察约束残差线性增长。</li><li>切换理想线，解释为什么 d=0 时仍可有非零 PGA 线。</li></ul></section>
+  </div>;
+}
+
+export function ScrewMotionLesson(){
+  return <div className="lesson-body">
+    <section className="prose-block"><span>01 · CHASLES IN PGA</span><h2>一般刚体位移等价于绕一条轴旋转，并沿同一轴平移</h2><p>Chasles 定理把看似任意的三维姿态变化还原为一个螺旋：存在一条轴线 L、旋转角 θ 与轴向位移 δ，使整个运动由两部分完成。PGA 中 L 与它的理想对偶 LI 彼此交换，因此两个指数可以合成一个 motor 指数。</p></section>
+    <figure className="equation-card large"><code>M=exp(−θL/2+δLI/2)=exp(δLI/2) exp(−θL/2)</code><figcaption>L 是规范化有限轴线；pitch h=δ/θ 表示每弧度沿轴前进多少。</figcaption></figure>
+    <ScrewMotionLab />
+    <section className="derivation-steps"><article><span>log</span><h3>从相对 motor 取 twist</h3><code>Ξ=log(M̃₀M₁)</code><p>双向量 Ξ 同时包含旋转与平移生成元。</p></article><article><span>scale</span><h3>在 Lie 代数中缩放</h3><code>Ξ(t)=tΞ</code><p>角度和轴向位移使用同一参数同步推进。</p></article><article><span>exp</span><h3>映回单位 motor</h3><code>M(t)=M₀exp(tΞ)</code><p>路径始终保持刚体运动约束。</p></article></section>
+    <section className="prose-block compact"><span>02 · SCLERP FOLLOWS THE GROUP, NOT COEFFICIENT SPACE</span><h2>对 motor 的 8 个系数做线性插值不会自动保持刚性</h2><p>ScLERP 是四元数 SLERP 在 SE(3) 上的对应：先求相对运动，再取对数、缩放、指数化。它给出恒定 twist 的螺旋轨迹，所有中间状态都是单位 motor。相比“位置线性插值 + 姿态 SLERP”，它不把同一个刚体运动人为拆成两条不相关的时间曲线。</p></section>
+    <div className="sign-table"><div><span>PURE ROTATION</span><b>δ=0</b><p>轨迹是绕固定轴的圆弧。</p></div><div><span>PURE TRANSLATION</span><b>θ→0</b><p>轴退到理想位置，轨迹变为直线；不要直接计算 δ/θ。</p></div><div><span>GENERAL SCREW</span><b>θ≠0, δ≠0</b><p>离轴点沿圆柱上的螺旋线移动。</p></div></div>
+    <section className="prose-block compact"><span>03 · LOGARITHMS HAVE BRANCHES</span><h2>M 与 −M 表示同一位移，但可能导向不同插值分支</h2><p>motor 像 rotor 一样双重覆盖刚体运动。取对数前通常选择与起点内积符号一致的代表，获得较短旋转分支；接近 180° 或纯平移时还需稳定的专用展开。所谓“最短”也必须结合任务语义：机械臂有时确实需要多转一圈。</p></section>
+    <section className="checkpoint"><span>实验任务</span><h3>辨认三种运动极限</h3><ul><li>把 δ 调为 0，验证螺旋收缩为圆。</li><li>把 θ 调到 0，确认轨迹成为直线且 pitch 显示为无穷而非数值爆炸。</li><li>令 θ 取正负值，观察手性翻转；再改变 δ 符号判断沿轴方向。</li></ul></section>
   </div>;
 }
