@@ -1,0 +1,63 @@
+'use client';
+
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+const lessons = [
+  { id: 'start', label: '起点', title: '空间不是静止的' },
+  { id: 'quaternion', label: '01', title: '四元数 · 旋转的语言' },
+  { id: 'rotor', label: '02', title: '转子 · 平面的旋转' },
+  { id: 'algebra', label: '03', title: '几何代数 · 统一视角' },
+  { id: 'spaces', label: '04', title: '空间结构的变幻' },
+];
+
+const toRad = (degrees: number) => (degrees * Math.PI) / 180;
+
+function SpaceCanvas({ angle, tilt }: { angle: number; tilt: number }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    let frame = 0;
+    const draw = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (rect.width * dpr !== canvas.width || rect.height * dpr !== canvas.height) { canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; }
+      const w = rect.width, h = rect.height, cx = w * .49, cy = h * .52, scale = Math.min(w, h) * .24;
+      const a = toRad(angle), t = toRad(tilt);
+      const project = (x: number, y: number, z: number) => [cx + (x - (y * Math.cos(t) - z * Math.sin(t)) * .72) * scale, cy - ((y * Math.sin(t) + z * Math.cos(t)) + x * .28) * scale] as const;
+      const line = (from: number[], to: number[], color: string, width = 1, dash?: number[]) => { const p = project(from[0], from[1], from[2]), q = project(to[0], to[1], to[2]); ctx.beginPath(); ctx.setLineDash(dash || []); ctx.moveTo(...p); ctx.lineTo(...q); ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke(); ctx.setLineDash([]); };
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); ctx.fillStyle = '#101720'; ctx.fillRect(0, 0, w, h);
+      const glow = ctx.createRadialGradient(cx, cy, 4, cx, cy, scale * 2.2); glow.addColorStop(0, 'rgba(47,230,181,.13)'); glow.addColorStop(1, 'rgba(15,23,32,0)'); ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
+      for (let i = -3; i <= 3; i++) { line([-2.6, i * .5, 0], [2.6, i * .5, 0], 'rgba(123,145,158,.18)'); line([i * .5, -2.6, 0], [i * .5, 2.6, 0], 'rgba(123,145,158,.14)'); }
+      line([-2.3, 0, 0], [2.35, 0, 0], 'rgba(230,240,242,.55)', 1.25); line([0, -2.2, 0], [0, 2.25, 0], 'rgba(230,240,242,.55)', 1.25); line([0, 0, -1.85], [0, 0, 1.85], 'rgba(230,240,242,.55)', 1.25);
+      const initial = [1.38, .45, .38], rotated = [initial[0] * Math.cos(a) - initial[1] * Math.sin(a), initial[0] * Math.sin(a) + initial[1] * Math.cos(a), initial[2]];
+      line([0, 0, 0], initial, 'rgba(245,184,79,.48)', 2, [5, 5]); line([0, 0, 0], rotated, '#50e6bd', 3);
+      const end = project(...rotated), start = project(0, 0, 0); ctx.beginPath(); ctx.arc(...end, 6, 0, Math.PI * 2); ctx.fillStyle = '#50e6bd'; ctx.fill(); ctx.beginPath(); ctx.arc(...start, 4, 0, Math.PI * 2); ctx.fillStyle = '#e8f0ef'; ctx.fill();
+      ctx.font = '12px ui-monospace, monospace'; ctx.fillStyle = '#8fa3ac'; const before = project(...initial); ctx.fillText('v', before[0] + 8, before[1] - 5); ctx.fillStyle = '#8af0d1'; ctx.fillText('qvq⁻¹', end[0] + 9, end[1] - 8); ctx.fillStyle = '#a9bac1'; ctx.fillText('rotation plane', w - 120, h - 28);
+      frame = requestAnimationFrame(draw);
+    };
+    frame = requestAnimationFrame(draw); return () => cancelAnimationFrame(frame);
+  }, [angle, tilt]);
+  return <canvas ref={ref} className="space-canvas" aria-label="可交互的三维旋转空间图像" />;
+}
+
+function Formula({ children, caption }: { children: React.ReactNode; caption?: string }) { return <figure className="formula"><code>{children}</code>{caption && <figcaption>{caption}</figcaption>}</figure>; }
+
+export default function Home() {
+  const [active, setActive] = useState('start'); const [angle, setAngle] = useState(64); const [tilt, setTilt] = useState(25); const [webgpu, setWebgpu] = useState(false);
+  useEffect(() => { setWebgpu(typeof navigator !== 'undefined' && 'gpu' in navigator); }, []);
+  const quaternion = useMemo(() => { const half = toRad(angle) / 2; return { w: Math.cos(half), z: Math.sin(half) }; }, [angle]);
+  const select = (id: string) => { setActive(id); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  return <main>
+    <aside className="sidebar"><a className="brand" href="#start" onClick={() => select('start')}><span className="brand-mark"><i /><i /><i /></span><span>GA / SPACE</span></a><div className="course-label">一场空间漫游</div><nav aria-label="教程目录">{lessons.map((item) => <button key={item.id} onClick={() => select(item.id)} className={active === item.id ? 'active' : ''}><span>{item.label}</span><em>{item.title}</em></button>)}</nav><div className="sidebar-bottom"><span className="dot" /> 第 1 / 5 节<br /><small>以交互建立直觉</small></div></aside>
+    <div className="mobile-head"><span className="brand-mark"><i /><i /><i /></span><b>GA / SPACE</b><span>空间漫游 · 01</span></div>
+    <section className="content" onScroll={(e) => { const container = e.currentTarget, mid = container.scrollTop + container.clientHeight * .38; const nearest = lessons.reduce((best, item) => { const el = document.getElementById(item.id), distance = el ? Math.abs(el.offsetTop - mid) : Infinity; return distance < best.distance ? { id: item.id, distance } : best; }, { id: active, distance: Infinity }); if (nearest.id !== active) setActive(nearest.id); }}>
+      <section id="start" className="hero section"><p className="eyebrow">从四元数开始 · 一份可玩的教程</p><h1>看见<br /><i>空间如何改变。</i></h1><p className="lede">旋转不是把物体“转过去”而已。它揭示了空间里方向、平面与维度之间更深的秩序。</p><div className="hero-meta"><span>约 45 分钟</span><span>•</span><span>5 个互动实验</span><span>•</span><span>无需预备知识</span></div><button className="begin" onClick={() => select('quaternion')}>开始漫游 <b>↓</b></button><div className="hero-orbit"><span /><span /><span /><strong>e<sup>iθ</sup></strong></div></section>
+      <section id="quaternion" className="section lesson"><div className="section-no">01 / QUATERNION</div><h2>先忘掉三维。<br />从一个<span>旋转</span>开始。</h2><p>复数 <i>a + bi</i> 可以在平面上表达旋转；四元数则把这种能力带入三维。它不是多加一个神秘维度，而是给“绕任意轴转动”找到了一个极其紧凑的语言。</p><Formula caption="单位四元数：标量部分 + 指向旋转轴的向量部分">q = cos(θ/2) + n̂ sin(θ/2)</Formula><div className="callout"><span>✦</span><p><b>关键直觉</b>：角度被折半了。因为一次空间旋转，本质上是在“方向的方向”中完成的一次双重映射。</p></div></section>
+      <section id="rotor" className="section experiment"><div className="experiment-top"><div><div className="section-no">02 / LIVE LAB</div><h2>亲手转动<br />一根<span>向量。</span></h2></div><div className={webgpu ? 'gpu-pill online' : 'gpu-pill'}><i /> {webgpu ? 'WEBGPU READY' : 'CANVAS MODE'}</div></div><div className="lab-card"><SpaceCanvas angle={angle} tilt={tilt} /><div className="readout"><span>ANGLE</span><b>{String(angle).padStart(3, '0')}°</b><small>axis · z</small></div></div><div className="controls"><label><span>旋转角 θ</span><output>{angle}°</output><input aria-label="旋转角" type="range" min="0" max="360" value={angle} onChange={e => setAngle(+e.target.value)} /></label><label><span>观察倾角</span><output>{tilt}°</output><input aria-label="观察倾角" type="range" min="-35" max="65" value={tilt} onChange={e => setTilt(+e.target.value)} /></label></div><Formula>q = {quaternion.w.toFixed(3)} + {quaternion.z.toFixed(3)} k</Formula><p className="lab-note">绿色向量是 <i>v</i> 经 <i>qvq⁻¹</i> 旋转后的结果。拖动滑块，留意它的长度从不改变——这正是单位四元数最可贵的性质。</p></section>
+      <section id="algebra" className="section lesson algebra"><div className="section-no">03 / GEOMETRIC ALGEBRA</div><h2>不只处理“数”。<br />也处理<span>方向与平面。</span></h2><p>几何代数（GA）把向量、面积、体积乃至更高维的“定向元素”都放入同一种代数里。你不必记住一套套独立规则：几何关系自己成为了运算。</p><Formula caption="几何积同时包含投影（点积）与张开的平面（外积）">ab = a · b + a ∧ b</Formula><div className="comparison"><div><span className="chip yellow">a · b</span><b>标量</b><p>两个方向有多对齐？</p></div><div><span className="chip mint">a ∧ b</span><b>双向量</b><p>它们张开哪一个平面？</p></div><div><span className="chip violet">ab</span><b>几何积</b><p>两种信息同时保留。</p></div></div><p>在这个视角里，四元数不再是一个孤岛：它恰好是三维几何代数的偶子代数。四元数旋转，也有了更普适的名字：<b>转子（rotor）</b>。</p></section>
+      <section id="spaces" className="section future"><div className="section-no">04 / FURTHER OUT</div><h2>再往前，<br />空间会<span>长出翅膀。</span></h2><p>掌握了旋转与几何积，许多看似不同的空间变换开始显露同一个骨架。以下是接下来的站点地图。</p><div className="future-grid"><article className="future-card card-1"><span>01</span><h3>共形几何代数</h3><p>把圆、直线、球与平面放在同一个空间里，自然地做反演与保角变换。</p><div className="circle-art"><i /><i /><b /></div></article><article className="future-card card-2"><span>02</span><h3>时空与洛伦兹变换</h3><p>当“时间”也成为一个方向，旋转会变成推动（boost）。</p><div className="cone-art"><i /><i /><i /></div></article><article className="future-card card-3"><span>03</span><h3>刚体运动</h3><p>用双四元数与马达，同时表达旋转、平移和它们的连续插值。</p><div className="motor-art"><i /><i /><i /></div></article></div><div className="ending"><span>◇</span><p>空间不是容器。<br /><b>它是关系运行的方式。</b></p><button onClick={() => select('start')}>回到起点 ↑</button></div></section>
+    </section>
+  </main>;
+}
