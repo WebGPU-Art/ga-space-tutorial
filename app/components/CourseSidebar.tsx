@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Module } from '../curriculum';
 
 type Props = {
@@ -8,15 +8,25 @@ type Props = {
   selectedId: string;
   onSelect: (id: string) => void;
   onHome: () => void;
+  onHistory: () => void;
+  currentView: 'course' | 'history';
 };
 
-export function CourseSidebar({ modules, selectedId, onSelect, onHome }: Props) {
+export function CourseSidebar({ modules, selectedId, onSelect, onHome, onHistory, currentView }: Props) {
   const activeModule = modules.find(module => module.lessons.some(lesson => lesson.id === selectedId));
   const [expanded, setExpanded] = useState<string[]>(activeModule ? [activeModule.id] : [modules[0].id]);
+  const [query, setQuery] = useState('');
 
   const toggle = (id: string) => setExpanded(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const completed = modules.flatMap(module => module.lessons).filter(lesson => lesson.status === 'ready').length;
   const total = modules.flatMap(module => module.lessons).length;
+  const matches = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return [];
+    return modules.flatMap(module => module.lessons.map(lesson => ({ lesson, module }))).filter(({ lesson, module }) =>
+      [lesson.title, lesson.summary, lesson.lab, module.title, ...lesson.concepts].some(value => value.toLowerCase().includes(normalized))
+    ).slice(0, 12);
+  }, [modules, query]);
 
   return <aside className="course-sidebar">
     <button className="course-brand" onClick={onHome} aria-label="返回课程总览">
@@ -27,7 +37,16 @@ export function CourseSidebar({ modules, selectedId, onSelect, onHome }: Props) 
       <span>LEARNING PATH</span>
       <b>{modules.length} 单元 · {total} 课</b>
     </div>
-    <nav className="module-nav" aria-label="课程目录">
+    <div className="sidebar-mode-switch" aria-label="内容频道">
+      <button className={currentView === 'course' ? 'active' : ''} onClick={onHome}><span>教材</span><small>系统学习</small></button>
+      <button className={currentView === 'history' ? 'active' : ''} onClick={onHistory}><span>数学史</span><small>思想长廊</small></button>
+    </div>
+    <label className="sidebar-search"><span>⌕</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索概念、课程或实验" aria-label="搜索课程" />{query && <button onClick={() => setQuery('')} aria-label="清除搜索">×</button>}</label>
+    <nav className="module-nav" aria-label={query ? '搜索结果' : '课程目录'}>
+      {query ? <div className="sidebar-results">
+        <span>{matches.length ? `找到 ${matches.length} 个入口` : '没有匹配内容'}</span>
+        {matches.map(({ lesson, module }) => <button key={lesson.id} onClick={() => onSelect(lesson.id)}><small>{module.number} · {module.title}</small><b>{lesson.number} {lesson.title}</b><p>{lesson.concepts.join(' · ')}</p></button>)}
+      </div> : <>
       {modules.map(module => {
         const isOpen = expanded.includes(module.id);
         const isCurrent = module.id === activeModule?.id;
@@ -45,6 +64,7 @@ export function CourseSidebar({ modules, selectedId, onSelect, onHome }: Props) 
           </div>}
         </section>;
       })}
+      </>}
     </nav>
     <div className="sidebar-progress">
       <span><b>{completed}</b> / {total} 已写作</span><span>{Math.round(completed / total * 100)}%</span>
