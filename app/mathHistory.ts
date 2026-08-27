@@ -101,11 +101,11 @@ export const eraLearning: Record<string, { level: string; prerequisites: string;
 };
 
 export const knowledgeDomains = [
-  { id: 'number', title: '数与代数', start: '整数、方程', expands: '数论、抽象代数', demos: ['进位记数', '配方法', '复数旋转'] },
+  { id: 'number', title: '数与代数', start: '整数、方程', expands: '数论、抽象代数', demos: ['进位记数', '配方法', '质数筛法', '复数旋转'] },
   { id: 'geometry', title: '几何与拓扑', start: '全等、圆与坐标', expands: '流形、拓扑、几何流', demos: ['勾股拼图', '圆锥曲线', '曲率', '欧拉示性数'] },
   { id: 'analysis', title: '变化与分析', start: '函数、数列、三角函数', expands: '微分方程、泛函分析', demos: ['切线与积分', '傅里叶合成'] },
-  { id: 'chance', title: '概率与数据', start: '计数、平均数', expands: '统计推断、随机过程', demos: ['二项分布', '优化轨迹'] },
-  { id: 'logic', title: '逻辑与计算', start: '命题、算法', expands: '可计算性、复杂度', demos: ['证明结构', '迭代与混沌'] },
+  { id: 'chance', title: '概率与数据', start: '计数、平均数', expands: '统计推断、随机过程', demos: ['二项分布', '重复抽样', '优化轨迹'] },
+  { id: 'logic', title: '逻辑与计算', start: '命题、算法', expands: '图论、可计算性、复杂度', demos: ['证明结构', '最短路', '迭代与混沌'] },
   { id: 'structure', title: '结构与对称', start: '变换、方程组', expands: '群、表示、范畴', demos: ['复乘法', '非欧测地线'] },
 ];
 

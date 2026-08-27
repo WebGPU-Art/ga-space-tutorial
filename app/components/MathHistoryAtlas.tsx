@@ -4,21 +4,24 @@ import { useEffect, useRef, useState } from 'react';
 import { eraLearning, frontierPaths, historyEras, historyPrinciples, knowledgeDomains, learningStages } from '../mathHistory';
 
 type DemoTrack = 'represent' | 'change' | 'frontier';
-type DemoId = 'numerals' | 'pythagoras' | 'algebra' | 'conics' | 'probability' | 'calculus' | 'complex' | 'fourier' | 'curvature' | 'topology' | 'chaos' | 'optimization';
+type DemoId = 'numerals' | 'pythagoras' | 'algebra' | 'conics' | 'sieve' | 'probability' | 'sampling' | 'calculus' | 'complex' | 'fourier' | 'curvature' | 'topology' | 'chaos' | 'network' | 'optimization';
 
 const demos: { id: DemoId; track: DemoTrack; label: string; era: string; title: string; prompt: string; insight: string; challenge: string }[] = [
   { id: 'numerals', track: 'represent', label: '01', era: '古代记数', title: '改变底数，数量没有改变', prompt: '拖动数量，观察十进制与六十进制怎样重新分组。', insight: '记号依赖表示系统；数量关系不依赖你选择的底数。', challenge: '找出六十进制第二位增加 1 时，十进制增加多少。' },
   { id: 'pythagoras', track: 'represent', label: '02', era: '演绎证明', title: '让面积替勾股定理说话', prompt: '移动四个全等三角形，比较两个大正方形里剩余的面积。', insight: '证明不是“看起来对”，而是每一步都保持面积且能说明为什么。', challenge: '暂停在中点，说出移动前后保持不变的三个量。' },
   { id: 'algebra', track: 'represent', label: '03', era: '代数学', title: '配方法是一场几何重组', prompt: '让长方形碎片补成正方形，观察缺角如何产生常数项。', insight: 'x² + bx 通过补上 (b/2)² 变成完整平方，这就是配方法。', challenge: '当 b 加倍时，需要补的小正方形面积变成几倍？' },
   { id: 'conics', track: 'represent', label: '04', era: '古典几何', title: '一次切割生成一族曲线', prompt: '改变偏心率，从圆连续走到椭圆、抛物线和双曲线。', insight: '看似不同的曲线，可以由一个参数和统一定义组织起来。', challenge: '在 e 接近 1 的两侧暂停，比较曲线为什么突然换类。' },
-  { id: 'probability', track: 'change', label: '05', era: '概率诞生', title: '偶然叠加出稳定分布', prompt: '改变成功概率，观察二项分布的峰值和偏斜怎样移动。', insight: '单次结果不可预测，大量独立重复却会形成稳定形状。', challenge: '预测 p = 0.5 时分布为什么左右对称。' },
-  { id: 'calculus', track: 'change', label: '06', era: '微积分', title: '割线逼近切线，矩形逼近面积', prompt: '同一进度同时缩短割线间距并增加积分矩形。', insight: '极限把“无限逼近”变成可计算对象，连接局部变化与总体积累。', challenge: '观察误差是否单调减小，并解释为何只是“趋近”而非突然相等。' },
-  { id: 'complex', track: 'change', label: '07', era: '复数与旋转', title: '乘法也可以是一种运动', prompt: '改变相角，观察整个格点如何保持距离并同步旋转。', insight: '复数把二维缩放与旋转压缩成一次乘法。', challenge: '转满一圈时哪些量变化了，哪些量回到原值？' },
-  { id: 'fourier', track: 'change', label: '08', era: '分析与波动', title: '简单圆周叠出复杂波形', prompt: '调节谐波数量，比较近似方波的细节与过冲。', insight: '换一组基之后，复杂信号会变成一串可独立调节的频率。', challenge: '谐波增加后，跳变处的过冲是否完全消失？' },
-  { id: 'curvature', track: 'frontier', label: '09', era: '现代几何', title: '改变曲率，平行线改写命运', prompt: '从负曲率拖到正曲率，观察测地线的分离与汇聚。', insight: '几何不是唯一舞台；公理与度量共同决定“直线”如何行动。', challenge: '在 K = 0 附近暂停，比较三种空间中“平行”的命运。' },
-  { id: 'topology', track: 'frontier', label: '10', era: '拓扑', title: '形状改变，欧拉示性数不变', prompt: '让多面体网络连续变形，跟踪 V − E + F。', insight: '拓扑忽略长度与角度，寻找连续变形下仍然保持的关系。', challenge: '增加一条边并把一个面分成两个面，检查不变量为何不变。' },
-  { id: 'chaos', track: 'frontier', label: '11', era: '复杂系统', title: '简单递推跨入混沌', prompt: '提高 logistic 参数 r，观察定点、周期倍增与不规则轨迹。', insight: '确定性不等于长期可预测；非线性会放大极小的初值差异。', challenge: '找出轨迹第一次从一个稳定值分裂成两个值的大致区间。' },
-  { id: 'optimization', track: 'frontier', label: '12', era: '优化与学习', title: '梯度沿最陡方向寻找低谷', prompt: '改变步长，观察收敛、振荡与发散。', insight: '机器学习的“学习”常从反复计算局部斜率并更新参数开始。', challenge: '为什么步长不是越大越快？找出开始振荡的位置。' },
+  { id: 'sieve', track: 'represent', label: '05', era: '数论与算法', title: '筛法：合数被结构性地排除', prompt: '推动筛选上限，观察质数如何在逐轮删除倍数后留下。', insight: '质数不是“没有规律的孤立数字”；整除结构让我们能系统寻找它们。', challenge: '为什么筛到 √N 就足以判断 N 以内的质数？' },
+  { id: 'probability', track: 'change', label: '06', era: '概率诞生', title: '偶然叠加出稳定分布', prompt: '改变成功概率，观察二项分布的峰值和偏斜怎样移动。', insight: '单次结果不可预测，大量独立重复却会形成稳定形状。', challenge: '预测 p = 0.5 时分布为什么左右对称。' },
+  { id: 'sampling', track: 'change', label: '07', era: '统计推断', title: '抽样：更多数据缩小不确定性', prompt: '增加样本量，比较多次样本均值围绕总体均值的散布。', insight: '样本越大，均值通常越稳定；统计结论仍应连同不确定性报告。', challenge: '更大样本能减少随机误差，但为什么不能自动消除偏差？' },
+  { id: 'calculus', track: 'change', label: '08', era: '微积分', title: '割线逼近切线，矩形逼近面积', prompt: '同一进度同时缩短割线间距并增加积分矩形。', insight: '极限把“无限逼近”变成可计算对象，连接局部变化与总体积累。', challenge: '观察误差是否单调减小，并解释为何只是“趋近”而非突然相等。' },
+  { id: 'complex', track: 'change', label: '09', era: '复数与旋转', title: '乘法也可以是一种运动', prompt: '改变相角，观察整个格点如何保持距离并同步旋转。', insight: '复数把二维缩放与旋转压缩成一次乘法。', challenge: '转满一圈时哪些量变化了，哪些量回到原值？' },
+  { id: 'fourier', track: 'change', label: '10', era: '分析与波动', title: '简单圆周叠出复杂波形', prompt: '调节谐波数量，比较近似方波的细节与过冲。', insight: '换一组基之后，复杂信号会变成一串可独立调节的频率。', challenge: '谐波增加后，跳变处的过冲是否完全消失？' },
+  { id: 'curvature', track: 'frontier', label: '11', era: '现代几何', title: '改变曲率，平行线改写命运', prompt: '从负曲率拖到正曲率，观察测地线的分离与汇聚。', insight: '几何不是唯一舞台；公理与度量共同决定“直线”如何行动。', challenge: '在 K = 0 附近暂停，比较三种空间中“平行”的命运。' },
+  { id: 'topology', track: 'frontier', label: '12', era: '拓扑', title: '形状改变，欧拉示性数不变', prompt: '让多面体网络连续变形，跟踪 V − E + F。', insight: '拓扑忽略长度与角度，寻找连续变形下仍然保持的关系。', challenge: '增加一条边并把一个面分成两个面，检查不变量为何不变。' },
+  { id: 'chaos', track: 'frontier', label: '13', era: '复杂系统', title: '简单递推跨入混沌', prompt: '提高 logistic 参数 r，观察定点、周期倍增与不规则轨迹。', insight: '确定性不等于长期可预测；非线性会放大极小的初值差异。', challenge: '找出轨迹第一次从一个稳定值分裂成两个值的大致区间。' },
+  { id: 'network', track: 'frontier', label: '14', era: '图论与网络', title: '最短路：局部更新得到全局路线', prompt: '推动算法轮次，观察从起点出发的暂定距离如何逐层稳定。', insight: '离散结构也有“几何”；图上的距离由连接和权重决定，而非直尺长度。', challenge: '若允许负权边，为什么这套贪心更新可能失效？' },
+  { id: 'optimization', track: 'frontier', label: '15', era: '优化与学习', title: '梯度沿最陡方向寻找低谷', prompt: '改变步长，观察收敛、振荡与发散。', insight: '机器学习的“学习”常从反复计算局部斜率并更新参数开始。', challenge: '为什么步长不是越大越快？找出开始振荡的位置。' },
 ];
 
 const demoTracks: { id: DemoTrack; title: string; note: string }[] = [
@@ -27,16 +30,35 @@ const demoTracks: { id: DemoTrack; title: string; note: string }[] = [
   { id: 'frontier', title: '结构与前沿', note: '曲率、拓扑、混沌与优化' },
 ];
 
+const demoChecks: Record<DemoId, { question: string; answers: string[]; correct: number; explain: string }> = {
+  numerals: { question: '“1,0”在六十进制中表示多少？', answers: ['10', '60', '100'], correct: 1, explain: '位置的权重由底数决定：1×60 + 0×1 = 60。' },
+  pythagoras: { question: '拼图证明依赖的关键不变量是什么？', answers: ['外框和四个三角形的总面积', '图形颜色', '摆放方向'], correct: 0, explain: '相同外框减去相同的四个三角形，剩余面积必然相等。' },
+  algebra: { question: '把 x²+bx 补成平方，需要增加？', answers: ['b²', '(b/2)²', '2b'], correct: 1, explain: '(x+b/2)² 展开后恰好是 x²+bx+(b/2)²。' },
+  conics: { question: '按离心率分类，抛物线对应？', answers: ['e<1', 'e=1', 'e>1'], correct: 1, explain: '椭圆、抛物线、双曲线分别对应 e<1、e=1、e>1。' },
+  sieve: { question: '筛掉合数时为什么从质数的平方开始？', answers: ['更小的倍数已被更小质因子筛掉', '平方总是质数', '可以少写一个数字'], correct: 0, explain: '例如 5×2、5×3 已在筛 2、3 时被删除，所以从 5² 开始即可。' },
+  probability: { question: 'p=0.5 时二项分布为何对称？', answers: ['成功与失败互换后概率相同', '每次必然成功一半', '柱子被强制排齐'], correct: 0, explain: 'k 次成功与 n−k 次成功的组合数相同，且成功、失败概率相等。' },
+  sampling: { question: '增大样本量最直接改善什么？', answers: ['自动消除所有偏差', '减小样本均值的随机散布', '保证因果关系'], correct: 1, explain: '更多独立样本通常降低标准误，但错误抽样方式仍会造成偏差。' },
+  calculus: { question: '割线趋近切线表达了什么？', answers: ['局部变化率的极限', '所有曲线都是直线', '面积等于斜率'], correct: 0, explain: '当两点间距趋于零，割线斜率趋向该点的导数。' },
+  complex: { question: '乘以单位复数会保持什么？', answers: ['长度', '横坐标', '相角'], correct: 0, explain: '模为 1 的复数只旋转，不缩放，因此保持距离和长度。' },
+  fourier: { question: '增加谐波后，跳变处过冲会？', answers: ['立刻完全消失', '变窄但峰值不会简单归零', '扩散到所有位置'], correct: 1, explain: '这是 Gibbs 现象：近似整体改善，但跳变附近保留特征性过冲。' },
+  curvature: { question: '负曲率空间中的附近测地线通常？', answers: ['汇聚', '保持固定间距', '分离'], correct: 2, explain: '负曲率使附近测地线更易分离，正曲率则倾向汇聚。' },
+  topology: { question: '把一个面用新边分成两个面，V−E+F 如何变？', answers: ['增加 1', '不变', '减少 1'], correct: 1, explain: 'E 与 F 同时增加 1，它们在 V−E+F 中抵消。' },
+  chaos: { question: '混沌意味着？', answers: ['没有确定规则', '对初值敏感的确定性演化', '所有结果等概率'], correct: 1, explain: '规则可以完全确定，长期轨迹却会把极小初值差异迅速放大。' },
+  network: { question: '图上的最短距离主要由什么决定？', answers: ['纸面直线距离', '边的连接与权重', '节点名称'], correct: 1, explain: '图论距离沿允许的边累计，因此取决于拓扑连接和边权。' },
+  optimization: { question: '梯度下降步长过大可能怎样？', answers: ['更快且永不失败', '跨过低谷并振荡或发散', '梯度自动变成零'], correct: 1, explain: '局部下降方向正确不代表任意大的更新仍能降低目标函数。' },
+};
+
 export function MathHistoryAtlas({ onOpenLesson }: { onOpenLesson: (lessonId: string) => void }) {
   const [activeEra, setActiveEra] = useState(0);
   const [demo, setDemo] = useState<DemoId>('numerals');
   const [track, setTrack] = useState<DemoTrack>('represent');
   const [progress, setProgress] = useState(0.24);
   const [playing, setPlaying] = useState(true);
+  const [choice, setChoice] = useState<number | null>(null);
 
   return <div className="history-atlas">
     <section className="history-hero">
-      <div className="history-kicker"><span>MATHEMATICAL IDEAS · ACROSS CULTURES</span><i>12 个时代 · 12 个思想实验</i></div>
+      <div className="history-kicker"><span>MATHEMATICAL IDEAS · ACROSS CULTURES</span><i>12 个时代 · 15 个思想实验</i></div>
       <div className="history-title-row"><div><h1>数学不是<br /><em>公式清单</em></h1><p>它是一部人类不断发明表示、证明、抽象与计算工具的历史。沿着“当时的人究竟遇到了什么问题”进入每个时代，再亲手改变参数，看一个新观念解决了什么、又打开了什么。</p></div><HistoryConstellation /></div>
       <div className="history-jump-row">{historyEras.map((era, index) => <button key={era.id} className={index === activeEra ? 'active' : ''} onClick={() => { setActiveEra(index); document.getElementById('history-timeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}><span>{String(index + 1).padStart(2, '0')}</span><b>{era.title.split('，')[0]}</b><small>{era.span}</small></button>)}</div>
     </section>
@@ -54,9 +76,9 @@ export function MathHistoryAtlas({ onOpenLesson }: { onOpenLesson: (lessonId: st
     <section className="history-lab-section">
       <div className="section-heading"><div><span>IDEA LAB</span><h2>把思想放进手里</h2></div><p>每个实验自动播放；也可以暂停、拖动时间或切换主题。先预测会发生什么，再看不变量是否支持你的猜想。</p></div>
       <HistoryCanvas demo={demo} progress={progress} playing={playing} onProgress={setProgress} />
-      <div className="history-track-tabs">{demoTracks.map(item => <button key={item.id} className={track === item.id ? 'active' : ''} onClick={() => { setTrack(item.id); setDemo(demos.find(candidate => candidate.track === item.id)!.id); setProgress(.02); }}><b>{item.title}</b><span>{item.note}</span></button>)}</div>
+      <div className="history-track-tabs">{demoTracks.map(item => <button key={item.id} className={track === item.id ? 'active' : ''} onClick={() => { setTrack(item.id); setDemo(demos.find(candidate => candidate.track === item.id)!.id); setProgress(.02); setChoice(null); }}><b>{item.title}</b><span>{item.note}</span></button>)}</div>
       <div className="history-demo-tabs" role="tablist" aria-label="数学史互动实验">
-        {demos.filter(item => item.track === track).map(item => <button key={item.id} role="tab" aria-selected={demo === item.id} className={demo === item.id ? 'active' : ''} onClick={() => { setDemo(item.id); setProgress(.02); }}><span>{item.label} · {item.era}</span><b>{item.title}</b><small>{item.prompt}</small></button>)}
+        {demos.filter(item => item.track === track).map(item => <button key={item.id} role="tab" aria-selected={demo === item.id} className={demo === item.id ? 'active' : ''} onClick={() => { setDemo(item.id); setProgress(.02); setChoice(null); }}><span>{item.label} · {item.era}</span><b>{item.title}</b><small>{item.prompt}</small></button>)}
       </div>
       <div className="history-player">
         <button onClick={() => setPlaying(value => !value)} aria-label={playing ? '暂停动画' : '播放动画'}>{playing ? 'Ⅱ' : '▶'}</button>
@@ -64,6 +86,7 @@ export function MathHistoryAtlas({ onOpenLesson }: { onOpenLesson: (lessonId: st
         <output>{Math.round(progress * 100)}%</output>
       </div>
       <div className="history-insight"><span>你应当发现</span><p>{demos.find(item => item.id === demo)?.insight}</p><span>暂停挑战</span><p>{demos.find(item => item.id === demo)?.challenge}</p></div>
+      <MathCheck demo={demo} choice={choice} onChoose={setChoice} />
     </section>
 
     <section className="history-timeline" id="history-timeline">
@@ -101,6 +124,11 @@ function HistoryEraCard({ index, onOpenLesson }: { index: number; onOpenLesson: 
 
 function HistoryConstellation() {
   return <div className="history-constellation" aria-hidden="true"><i /><i /><i /><i /><i /><span>数</span><span>形</span><span>变换</span><span>结构</span><b>?</b></div>;
+}
+
+function MathCheck({ demo, choice, onChoose }: { demo: DemoId; choice: number | null; onChoose: (value: number) => void }) {
+  const check = demoChecks[demo];
+  return <section className="physics-check history-check" aria-label="理解检查"><div><span>先预测 · 再核对</span><h3>{check.question}</h3></div><div className="physics-check-options">{check.answers.map((answer, index) => <button key={answer} className={choice === index ? (index === check.correct ? 'correct' : 'incorrect') : ''} onClick={() => onChoose(index)}><i>{String.fromCharCode(65 + index)}</i>{answer}</button>)}</div>{choice !== null && <p className={choice === check.correct ? 'correct' : 'incorrect'}>{choice === check.correct ? '判断正确。' : '再检查一次不变量或条件。'} {check.explain}</p>}</section>;
 }
 
 function HistoryCanvas({ demo, progress, playing, onProgress }: { demo: DemoId; progress: number; playing: boolean; onProgress: (value: number) => void }) {
@@ -150,13 +178,16 @@ function drawHistory(ctx: CanvasRenderingContext2D, width: number, height: numbe
   if (demo === 'pythagoras') drawPythagoras(ctx, width, height, t);
   if (demo === 'algebra') drawAlgebra(ctx, width, height, t);
   if (demo === 'conics') drawConics(ctx, width, height, t);
+  if (demo === 'sieve') drawSieve(ctx, width, height, t);
   if (demo === 'probability') drawProbability(ctx, width, height, t);
+  if (demo === 'sampling') drawSampling(ctx, width, height, t);
   if (demo === 'calculus') drawCalculus(ctx, width, height, t);
   if (demo === 'complex') drawComplex(ctx, width, height, t);
   if (demo === 'fourier') drawFourier(ctx, width, height, t);
   if (demo === 'curvature') drawCurvature(ctx, width, height, t);
   if (demo === 'topology') drawTopology(ctx, width, height, t);
   if (demo === 'chaos') drawChaos(ctx, width, height, t);
+  if (demo === 'network') drawNetwork(ctx, width, height, t);
   if (demo === 'optimization') drawOptimization(ctx, width, height, t);
   ctx.restore();
 }
@@ -230,6 +261,14 @@ function drawConics(ctx: CanvasRenderingContext2D, w: number, h: number, t: numb
   ctx.fillStyle = '#91a7a1'; ctx.font = '11px ui-monospace'; ctx.fillText(e < .02 ? 'CIRCLE' : e < .98 ? 'ELLIPSE' : e < 1.04 ? 'PARABOLA' : 'HYPERBOLA', 48, 121);
 }
 
+function drawSieve(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
+  const limit = 100, stage = 2 + Math.floor(t * 9), columns = 10, cell = Math.min(41, (w - 90) / columns, (h - 115) / 10), left = (w - columns * cell) / 2, top = 72;
+  const primes: number[] = [];
+  for (let value = 2; value <= limit; value++) { let prime = true; for (let divisor = 2; divisor * divisor <= value; divisor++) if (value % divisor === 0) { prime = false; break; } if (prime) primes.push(value); }
+  for (let value = 1; value <= limit; value++) { const x = left + ((value - 1) % columns) * cell, y = top + Math.floor((value - 1) / columns) * cell, crossed = value > 1 && !primes.includes(value) && primes.some(prime => prime <= stage && value % prime === 0); ctx.fillStyle = primes.includes(value) && value <= stage ? '#f0bf52' : crossed ? 'rgba(112,132,126,.18)' : 'rgba(72,217,173,.16)'; ctx.fillRect(x + 2, y + 2, cell - 4, cell - 4); ctx.fillStyle = crossed ? '#66736e' : '#eef3ee'; ctx.font = `${Math.max(8, cell * .25)}px ui-monospace`; ctx.fillText(String(value), x + cell * .27, y + cell * .62); if (crossed) { ctx.strokeStyle = 'rgba(240,127,99,.5)'; ctx.beginPath(); ctx.moveTo(x + 7, y + cell - 7); ctx.lineTo(x + cell - 7, y + 7); ctx.stroke(); } }
+  ctx.fillStyle = '#f5f0e5'; ctx.font = '23px Georgia'; ctx.fillText(`筛选质因子 ≤ ${stage}`, 42, 40); ctx.fillStyle = '#91a7a1'; ctx.font = '10px ui-monospace'; ctx.fillText('未被较小质数整除的数留下', w - 245, 39);
+}
+
 function drawProbability(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
   const n = 12, p = .05 + .9 * t, margin = 48, base = h - 60, chartW = w - margin * 2, chartH = h - 145;
   const choose = (total: number, k: number) => { let result = 1; for (let i = 1; i <= k; i++) result = result * (total - i + 1) / i; return result; };
@@ -238,6 +277,15 @@ function drawProbability(ctx: CanvasRenderingContext2D, w: number, h: number, t:
   values.forEach((value, k) => { const barH = value / max * chartH; ctx.fillStyle = k === Math.round(n * p) ? '#f0bf52' : 'rgba(72,217,173,.62)'; ctx.fillRect(margin + k * gap + (gap - barW) / 2, base - barH, barW, barH); ctx.fillStyle = '#91a7a1'; ctx.font = '8px ui-monospace'; ctx.fillText(String(k), margin + k * gap + gap * .35, base + 16); });
   ctx.strokeStyle = '#75908a'; ctx.beginPath(); ctx.moveTo(margin, base); ctx.lineTo(w - margin, base); ctx.stroke();
   ctx.fillStyle = '#f5f0e5'; ctx.font = '42px Georgia'; ctx.fillText(`p = ${p.toFixed(2)}`, 45, 73); ctx.fillStyle = '#91a7a1'; ctx.font = '10px ui-monospace'; ctx.fillText(`12 次独立试验 · 期望成功次数 = ${(n * p).toFixed(1)}`, 48, 101);
+}
+
+function drawSampling(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
+  const sampleSize = 4 + Math.floor(t * 196), center = w * .5, base = h - 62, scale = w * .36, spreads: number[] = [];
+  for (let trial = 0; trial < 70; trial++) { let total = 0; for (let item = 0; item < sampleSize; item++) total += Math.sin((trial + 1) * 12.9898 + (item + 3) * 78.233) * .5 + Math.cos((trial + item + 2) * 4.17) * .5; spreads.push(total / sampleSize); }
+  ctx.strokeStyle = '#75908a'; ctx.beginPath(); ctx.moveTo(w * .1, base); ctx.lineTo(w * .9, base); ctx.stroke();
+  [-.4, -.2, 0, .2, .4].forEach(value => { const x = center + value * scale; ctx.beginPath(); ctx.moveTo(x, base - 5); ctx.lineTo(x, base + 5); ctx.stroke(); ctx.fillStyle = '#91a7a1'; ctx.font = '9px ui-monospace'; ctx.fillText(value.toFixed(1), x - 10, base + 22); });
+  const bins = Array.from({ length: 21 }, () => 0); spreads.forEach(mean => bins[Math.max(0, Math.min(20, Math.floor((mean + .5) * 20)))]++); bins.forEach((count, index) => { const x = center + ((index / 20) - .5) * scale, bar = count * 11; ctx.fillStyle = index === 10 ? '#f0bf52' : 'rgba(72,217,173,.65)'; ctx.fillRect(x - 6, base - bar, 11, bar); });
+  ctx.strokeStyle = '#f0bf52'; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.moveTo(center, 65); ctx.lineTo(center, base); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = '#f5f0e5'; ctx.font = '37px Georgia'; ctx.fillText(`n = ${sampleSize}`, 42, 70); ctx.fillStyle = '#91a7a1'; ctx.font = '10px ui-monospace'; ctx.fillText('70 次重复抽样的样本均值 · 总体均值 = 0', 45, 98);
 }
 
 function drawCalculus(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
@@ -316,6 +364,13 @@ function drawChaos(ctx: CanvasRenderingContext2D, w: number, h: number, t: numbe
   ctx.fillStyle = '#f5f0e5'; ctx.font = '42px Georgia'; ctx.fillText(`r = ${r.toFixed(3)}`, 43, 72);
   ctx.fillStyle = '#91a7a1'; ctx.font = '10px ui-monospace'; ctx.fillText('xₙ₊₁ = r xₙ(1 − xₙ) · 两个初值只差 0.00001', 46, 101);
   ctx.fillStyle = '#48d9ad'; ctx.fillRect(w - 236, 52, 14, 2); ctx.fillStyle = '#91a7a1'; ctx.fillText('x₀ = 0.2', w - 214, 56); ctx.fillStyle = '#f0bf52'; ctx.fillRect(w - 130, 52, 14, 2); ctx.fillStyle = '#91a7a1'; ctx.fillText('x₀ + ε', w - 108, 56);
+}
+
+function drawNetwork(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
+  const nodes = [[.12,.55],[.28,.26],[.31,.78],[.5,.42],[.56,.76],[.72,.22],[.83,.57],[.9,.82]] as const, edges = [[0,1,3],[0,2,5],[1,2,2],[1,3,4],[2,3,1],[2,4,4],[3,4,2],[3,5,6],[3,6,5],[4,6,2],[4,7,6],[5,6,1],[6,7,3]] as const, distance = [0,3,5,6,8,11,10,13], predecessor = [-1,0,0,2,3,6,4,6], order = [0,1,2,3,4,6,5,7], settled = Math.min(nodes.length, 1 + Math.floor(t * nodes.length)), isSettled = (index: number) => order.indexOf(index) < settled;
+  edges.forEach(([from, to, weight]) => { const [x1,y1] = nodes[from], [x2,y2] = nodes[to], onPath = predecessor[to] === from && isSettled(to); ctx.strokeStyle = onPath ? '#f0bf52' : 'rgba(122,147,140,.45)'; ctx.lineWidth = onPath ? 3 : 1.5; ctx.beginPath(); ctx.moveTo(x1 * w, y1 * h); ctx.lineTo(x2 * w, y2 * h); ctx.stroke(); ctx.fillStyle = '#91a7a1'; ctx.font = '9px ui-monospace'; ctx.fillText(String(weight), (x1 + x2) * w / 2 + 4, (y1 + y2) * h / 2 - 4); });
+  nodes.forEach(([x,y], index) => { const active = isSettled(index); ctx.fillStyle = index === 0 ? '#f0bf52' : active ? '#48d9ad' : '#53645f'; ctx.beginPath(); ctx.arc(x * w, y * h, active ? 10 : 8, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#f5f0e5'; ctx.font = '10px ui-monospace'; ctx.fillText(index === 0 ? 'S' : active ? String(distance[index]) : '∞', x * w - 4, y * h + 4); });
+  ctx.fillStyle = '#f5f0e5'; ctx.font = '28px Georgia'; ctx.fillText(`已稳定 ${settled} / ${nodes.length} 个节点`, 40, 47); ctx.fillStyle = '#91a7a1'; ctx.font = '10px ui-monospace'; ctx.fillText('边上数字是代价 · 节点内数字是从 S 出发的暂定距离', 42, h - 28);
 }
 
 function drawOptimization(ctx: CanvasRenderingContext2D, w: number, h: number, t: number) {
