@@ -9,10 +9,11 @@ type Props = {
   onSelect: (id: string) => void;
   onHome: () => void;
   onHistory: () => void;
-  currentView: 'course' | 'history';
+  onPhysics: () => void;
+  currentView: 'course' | 'history' | 'physics';
 };
 
-export function CourseSidebar({ modules, selectedId, onSelect, onHome, onHistory, currentView }: Props) {
+export function CourseSidebar({ modules, selectedId, onSelect, onHome, onHistory, onPhysics, currentView }: Props) {
   const activeModule = modules.find(module => module.lessons.some(lesson => lesson.id === selectedId));
   const [expanded, setExpanded] = useState<string[]>(activeModule ? [activeModule.id] : [modules[0].id]);
   const [query, setQuery] = useState('');
@@ -40,6 +41,7 @@ export function CourseSidebar({ modules, selectedId, onSelect, onHome, onHistory
     <div className="sidebar-mode-switch" aria-label="内容频道">
       <button className={currentView === 'course' ? 'active' : ''} onClick={onHome}><span>教材</span><small>系统学习</small></button>
       <button className={currentView === 'history' ? 'active' : ''} onClick={onHistory}><span>数学史</span><small>思想长廊</small></button>
+      <button className={currentView === 'physics' ? 'active' : ''} onClick={onPhysics}><span>物理学史</span><small>证据与模型</small></button>
     </div>
     <label className="sidebar-search"><span>⌕</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索概念、课程或实验" aria-label="搜索课程" />{query && <button onClick={() => setQuery('')} aria-label="清除搜索">×</button>}</label>
     <nav className="module-nav" aria-label={query ? '搜索结果' : '课程目录'}>

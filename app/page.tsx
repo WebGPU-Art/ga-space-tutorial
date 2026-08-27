@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { CourseSidebar } from './components/CourseSidebar';
 import { FormulaTypesetter } from './components/FormulaTypesetter';
 import { MathHistoryAtlas } from './components/MathHistoryAtlas';
+import { PhysicsHistoryAtlas } from './components/PhysicsHistoryAtlas';
 import { QuaternionRotationLab } from './components/labs/QuaternionRotationLab';
 import { RepresentationComparisonLab } from './components/labs/FoundationLabs';
 import { QuaternionGABridgeLab } from './components/labs/QuaternionConceptLabs';
@@ -22,34 +23,35 @@ import { allLessons, auditFindings, firstLesson, modules, references, type Lesso
 
 export default function Home() {
   const [selectedId, setSelectedId] = useState<string>('');
-  const [view, setView] = useState<'course' | 'history'>('course');
+  const [view, setView] = useState<'course' | 'history' | 'physics'>('course');
   const lesson = useMemo(() => allLessons.find(item => item.id === selectedId), [selectedId]);
   const activeModule = lesson ? modules.find(item => item.lessons.some(entry => entry.id === lesson.id)) : undefined;
   const openLesson = (id: string) => { setSelectedId(id); setView('course'); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const openHome = () => { setSelectedId(''); setView('course'); };
   const openHistory = () => { setSelectedId(''); setView('history'); };
+  const openPhysics = () => { setSelectedId(''); setView('physics'); };
 
   return <main className="textbook-shell">
-    <CourseSidebar modules={modules} selectedId={selectedId} onSelect={openLesson} onHome={openHome} onHistory={openHistory} currentView={view} />
+    <CourseSidebar modules={modules} selectedId={selectedId} onSelect={openLesson} onHome={openHome} onHistory={openHistory} onPhysics={openPhysics} currentView={view} />
     <div className="textbook-main">
       <header className="textbook-topbar">
-        <div><span className="signal-dot" /> <b>GA / SPACE</b><span className="crumb">{view === 'history' ? '数学史 · 思想长廊' : lesson ? `${activeModule?.number} · ${lesson.number} ${lesson.title}` : '课程总览'}</span></div>
-        <div className="topbar-channels"><button className={view === 'course' ? 'active' : ''} onClick={openHome}>课程</button><button className={view === 'history' ? 'active' : ''} onClick={openHistory}>数学史</button><span>中文</span></div>
+        <div><span className="signal-dot" /> <b>GA / SPACE</b><span className="crumb">{view === 'history' ? '数学史 · 思想长廊' : view === 'physics' ? '物理学史 · 证据与模型' : lesson ? `${activeModule?.number} · ${lesson.number} ${lesson.title}` : '课程总览'}</span></div>
+        <div className="topbar-channels"><button className={view === 'course' ? 'active' : ''} onClick={openHome}>课程</button><button className={view === 'history' ? 'active' : ''} onClick={openHistory}>数学史</button><button className={view === 'physics' ? 'active' : ''} onClick={openPhysics}>物理学史</button><span>中文</span></div>
       </header>
       <div className="reader-scroll">
-        {view === 'history' ? <MathHistoryAtlas onOpenLesson={openLesson} /> : !lesson ? <CourseOverview onSelect={openLesson} onHistory={openHistory} /> : <LessonPage lesson={lesson} moduleTitle={activeModule?.title ?? ''} onNext={openLesson} />}
+        {view === 'history' ? <MathHistoryAtlas onOpenLesson={openLesson} /> : view === 'physics' ? <PhysicsHistoryAtlas onOpenLesson={openLesson} /> : !lesson ? <CourseOverview onSelect={openLesson} onHistory={openHistory} onPhysics={openPhysics} /> : <LessonPage lesson={lesson} moduleTitle={activeModule?.title ?? ''} onNext={openLesson} />}
       </div>
     </div>
   </main>;
 }
 
-function CourseOverview({ onSelect, onHistory }: { onSelect: (id: string) => void; onHistory: () => void }) {
+function CourseOverview({ onSelect, onHistory, onPhysics }: { onSelect: (id: string) => void; onHistory: () => void; onPhysics: () => void }) {
   const totalMinutes = allLessons.reduce((sum, lesson) => sum + lesson.minutes, 0);
   return <div className="course-overview">
     <section className="overview-hero">
       <div className="overview-kicker"><span>INTERACTIVE TEXTBOOK · V0.2</span><i>课程骨架已建立</i></div>
       <div className="overview-title-row"><div><h1>几何代数<br /><em>空间教程</em></h1><p>从四元数进入旋转，再沿着几何积、转子、PGA、CGA 与时空模型逐层展开。每一课按“直觉 → 图形 → 公式 → 实验 → 练习”组织。</p></div><div className="overview-orbit"><span>scalar</span><span>vector</span><span>bivector</span><i>R X R̃</i></div></div>
-      <div className="overview-actions"><button onClick={() => onSelect(firstLesson.id)}>从第一课开始 <span>→</span></button><button onClick={onHistory}>进入数学史长廊 <span>↗</span></button></div>
+      <div className="overview-actions"><button onClick={() => onSelect(firstLesson.id)}>从第一课开始 <span>→</span></button><button onClick={onHistory}>进入数学史长廊 <span>↗</span></button><button onClick={onPhysics}>从物理史进入 <span>↗</span></button></div>
       <div className="course-stats"><div><b>{modules.length}</b><span>学习单元</span></div><div><b>{allLessons.length}</b><span>递进课次</span></div><div><b>{Math.round(totalMinutes / 60)}</b><span>小时预计内容</span></div><div><b>{allLessons.length}</b><span>实验设计</span></div></div>
     </section>
 
