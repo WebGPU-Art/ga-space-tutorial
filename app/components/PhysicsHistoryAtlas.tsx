@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { physicsDemoReadings } from '../historyDemoDocs';
 import { physicsDomains, physicsEraLearning, physicsEras, physicsFrontierPaths, physicsLearningStages, physicsReferences } from '../physicsHistory';
+import { DemoReadingPanel } from './DemoReadingPanel';
 
 type DemoTrack = 'classical' | 'modern' | 'frontier';
 type DemoId = 'measure' | 'fall' | 'orbit' | 'resonance' | 'heat' | 'gas' | 'field' | 'induction' | 'clock' | 'quantum' | 'atom' | 'decay' | 'matter' | 'chaos' | 'cosmos';
@@ -86,6 +88,7 @@ export function PhysicsHistoryAtlas({ onOpenLesson }: { onOpenLesson: (lessonId:
       <div className="physics-player"><button onClick={() => setPlaying(current => !current)} aria-label={playing ? '暂停实验' : '播放实验'}>{playing ? 'Ⅱ' : '▶'}</button><label><span>{selectedDemo.control}</span><input aria-label={selectedDemo.control} type="range" min="0" max="1" step="0.001" value={value} onChange={event => { setPlaying(false); setValue(Number(event.target.value)); }} /></label><output>{demoOutput(demo, value)}</output></div>
       <div className="physics-lab-copy"><div><span>实验任务</span><p>{selectedDemo.prompt}</p></div><div><span>你应当观察到</span><p>{selectedDemo.insight}</p></div><div><span>模型边界</span><p>{selectedDemo.challenge}</p></div></div>
       <PhysicsCheck demo={demo} choice={choice} onChoose={setChoice} />
+      <DemoReadingPanel reading={physicsDemoReadings[demo]} onOpenLesson={onOpenLesson} />
     </section>
 
     <section className="physics-timeline" id="physics-timeline">

@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { mathDemoReadings } from '../historyDemoDocs';
 import { eraLearning, frontierPaths, historyEras, historyPrinciples, knowledgeDomains, learningStages } from '../mathHistory';
+import { DemoReadingPanel } from './DemoReadingPanel';
 
 type DemoTrack = 'represent' | 'change' | 'frontier';
 type DemoId = 'numerals' | 'pythagoras' | 'algebra' | 'conics' | 'sieve' | 'probability' | 'sampling' | 'calculus' | 'complex' | 'fourier' | 'curvature' | 'topology' | 'chaos' | 'network' | 'optimization';
@@ -87,6 +89,7 @@ export function MathHistoryAtlas({ onOpenLesson }: { onOpenLesson: (lessonId: st
       </div>
       <div className="history-insight"><span>你应当发现</span><p>{demos.find(item => item.id === demo)?.insight}</p><span>暂停挑战</span><p>{demos.find(item => item.id === demo)?.challenge}</p></div>
       <MathCheck demo={demo} choice={choice} onChoose={setChoice} />
+      <DemoReadingPanel reading={mathDemoReadings[demo]} onOpenLesson={onOpenLesson} />
     </section>
 
     <section className="history-timeline" id="history-timeline">
